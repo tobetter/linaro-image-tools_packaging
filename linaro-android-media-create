@@ -33,6 +33,7 @@ from linaro_image_tools.media_create.partitions import (
     setup_partitions,
     setup_android_partitions,
     get_uuid,
+    partition_mounted,
     )
 from linaro_image_tools.media_create.rootfs import populate_partition
 from linaro_image_tools.media_create.unpack_binary_tarball import (
@@ -82,20 +83,12 @@ def ensure_required_commands(args):
         'mkfs.vfat', 'sfdisk', 'mkimage', 'parted']
     if not is_arm_host():
         required_commands.append('qemu-arm-static')
-        required_commands.append('qemu-img')
     for command in required_commands:
         ensure_command(command)
 
 
 if __name__ == '__main__':
     parser = get_android_args_parser()
-    print "===================================================================="
-    print "            linaro-android-media-create is EXPERIMENTAL             "
-    print "                                                                    "
-    print " The command line parameters as well as the distribution format will" 
-    print " be changed and we will not keep backward compatibility for the     " 
-    print " current version here.                                              "
-    print "===================================================================="
     args = parser.parse_args()
 
     # If --help was specified this won't execute.
@@ -113,15 +106,18 @@ if __name__ == '__main__':
 
     board_config = android_board_configs[args.board]
 
+    if args.board == 'iMX53':
+        # XXX: remove this and the corresponding entry in android_board_configs
+        print "DEPRECATION WARNING: iMX53 is deprecated, please use mx53loco."
+
     ensure_required_commands(args)
 
     media = Media(args.device)
     if media.is_block_device:
         if not confirm_device_selection_and_ensure_it_is_ready(args.device):
             sys.exit(1)
-    elif not args.should_format_rootfs or not args.should_format_bootfs:
-        print ("Do not use --no-boot or --no-part in conjunction with "
-               "--image_file.")
+    elif not args.should_create_partitions:
+        print ("Do not use --no-part in conjunction with --image_file.")
         sys.exit(1)
     else:
         # All good, move on.
@@ -135,14 +131,17 @@ if __name__ == '__main__':
     unpack_android_binary_tarball(args.system, SYSTEM_DIR)
     unpack_android_binary_tarball(args.userdata, DATA_DIR)
 
-    # Create partitions    
+    # Create partitions
     boot_partition, system_partition, cache_partition, \
         data_partition, sdcard_partition = setup_android_partitions( \
-        board_config, media, args.boot_label, args.should_create_partitions,
-        args.should_align_boot_part)
+        board_config, media, args.image_size, args.boot_label,
+        args.should_create_partitions, args.should_align_boot_part)
 
+    board_config.populate_raw_partition(args.device, BOOT_DIR)
     populate_partition(BOOT_DIR + "/boot", BOOT_DISK, boot_partition)
     board_config.populate_boot_script(boot_partition, BOOT_DISK, args.consoles)
+    with partition_mounted(boot_partition, BOOT_DISK):
+        board_config.install_boot_loader(args.device, BOOT_DISK)
     populate_partition(SYSTEM_DIR + "/system", SYSTEM_DISK, system_partition)
     populate_partition(DATA_DIR + "/data", DATA_DISK, data_partition)
     print "Done creating Linaro Android image on %s" % args.device

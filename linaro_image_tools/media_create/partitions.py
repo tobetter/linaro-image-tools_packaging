@@ -3,7 +3,7 @@
 # Author: Guilherme Salgado <guilherme.salgado@linaro.org>
 #
 # This file is part of Linaro Image Tools.
-# 
+#
 # Linaro Image Tools is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -18,7 +18,9 @@
 # along with Linaro Image Tools.  If not, see <http://www.gnu.org/licenses/>.
 
 import atexit
+from contextlib import contextmanager
 import glob
+import logging
 import re
 import subprocess
 import time
@@ -28,6 +30,7 @@ from parted import (
     Device,
     Disk,
     PARTITION_NORMAL,
+    PARTITION_EXTENDED,
     )
 
 from linaro_image_tools import cmd_runner
@@ -41,22 +44,38 @@ DBUS_PROPERTIES = 'org.freedesktop.DBus.Properties'
 UDISKS = "org.freedesktop.UDisks"
 
 
-def setup_android_partitions(board_config, media, bootfs_label,
+def setup_android_partitions(board_config, media, image_size, bootfs_label,
                      should_create_partitions, should_align_boot_part=False):
     cylinders = None
+    if not media.is_block_device:
+        image_size_in_bytes = convert_size_to_bytes(image_size)
+        cylinders = image_size_in_bytes / CYLINDER_SIZE
+        proc = cmd_runner.run(
+            ['dd', 'of=%s' % media.path,
+             'bs=1', 'seek=%s' % image_size_in_bytes, 'count=0'],
+            stderr=open('/dev/null', 'w'))
+        proc.wait()
 
     if should_create_partitions:
         create_partitions(
             board_config, media, HEADS, SECTORS, cylinders,
             should_align_boot_part=should_align_boot_part)
 
-    bootfs, system, cache, data, sdcard = \
-        get_android_partitions_for_media (media, board_config)
-    ensure_partition_is_not_mounted(bootfs)
-    ensure_partition_is_not_mounted(system)
-    ensure_partition_is_not_mounted(cache)
-    ensure_partition_is_not_mounted(data)
-    ensure_partition_is_not_mounted(sdcard)
+    if media.is_block_device:
+        bootfs, system, cache, data, sdcard = \
+            get_android_partitions_for_media (media, board_config)
+        ensure_partition_is_not_mounted(bootfs)
+        ensure_partition_is_not_mounted(system)
+        ensure_partition_is_not_mounted(cache)
+        ensure_partition_is_not_mounted(data)
+        ensure_partition_is_not_mounted(sdcard)
+    else:
+        partitions = get_android_loopback_devices(media.path)
+        bootfs = partitions[0]
+        system = partitions[1]
+        cache = partitions[2]
+        data = partitions[3]
+        sdcard = partitions[4]
 
     print "\nFormating boot partition\n"
     proc = cmd_runner.run(
@@ -80,6 +99,7 @@ def setup_android_partitions(board_config, media, bootfs_label,
     proc.wait()
 
     return bootfs, system, cache, data, sdcard
+
 
 # I wonder if it'd make sense to convert this into a small shim which calls
 # the appropriate function for the given type of device?  I think it's still
@@ -111,9 +131,9 @@ def setup_partitions(board_config, media, image_size, bootfs_label,
         image_size_in_bytes = convert_size_to_bytes(image_size)
         cylinders = image_size_in_bytes / CYLINDER_SIZE
         proc = cmd_runner.run(
-            ['qemu-img', 'create', '-f', 'raw', media.path,
-             str(image_size_in_bytes)],
-            stdout=open('/dev/null', 'w'))
+            ['dd', 'of=%s' % media.path,
+             'bs=1', 'seek=%s' % image_size_in_bytes, 'count=0'],
+            stderr=open('/dev/null', 'w'))
         proc.wait()
 
     if should_create_partitions:
@@ -149,6 +169,39 @@ def setup_partitions(board_config, media, image_size, bootfs_label,
         proc.wait()
 
     return bootfs, rootfs
+
+
+def umount(path):
+    # The old code used to ignore failures here, but I don't think that's
+    # desirable so I'm using cmd_runner.run()'s standard behaviour, which will
+    # fail on a non-zero return value.
+    cmd_runner.run(['umount', path], as_root=True).wait()
+
+
+@contextmanager
+def partition_mounted(device, path, *args):
+    """A context manager that mounts the given device and umounts when done.
+
+    We use a try/finally to make sure the device is umounted even if there's
+    an uncaught exception in the with block.  Also, before umounting we call
+    'sync'.
+
+    :param *args: Extra arguments to the mount command.
+    """
+    subprocess_args = ['mount', device, path]
+    subprocess_args.extend(args)
+    cmd_runner.run(subprocess_args, as_root=True).wait()
+    try:
+        yield
+    finally:
+        cmd_runner.run(['sync']).wait()
+        try:
+            umount(path)
+        except cmd_runner.SubcommandNonZeroReturnValue, e:
+            logger = logging.getLogger("linaro_image_tools")
+            logger.warn("Failed to umount %s, but ignoring it because of a "
+                        "previous error" % path)
+            logger.warn(e)
 
 
 def get_uuid(partition):
@@ -195,6 +248,21 @@ def get_boot_and_root_loopback_devices(image_file):
     return boot_device, root_device
 
 
+def get_android_loopback_devices(image_file):
+    """Return the loopback devices for the given image file.
+
+    Assumes a particular order of devices in the file.
+    Register the loopback devices as well.
+    """
+    devices = []
+    device_info = calculate_android_partition_size_and_offset(image_file)
+    for device_offset, device_size in device_info:
+        devices.append(register_loopback(image_file, device_offset,
+                                         device_size))
+
+    return devices
+
+
 def register_loopback(image_file, offset, size):
     """Register a loopback device with an atexit handler to de-register it."""
     def undo(device):
@@ -231,8 +299,8 @@ def calculate_partition_size_and_offset(image_file):
                 partition.type)
         if 'boot' in partition.getFlagsAsString():
             geometry = partition.geometry
-            vfat_offset = geometry.start * 512
-            vfat_size = geometry.length * 512
+            vfat_offset = geometry.start * SECTOR_SIZE
+            vfat_size = geometry.length * SECTOR_SIZE
             vfat_partition = partition
         elif vfat_partition is not None:
             # next partition after boot partition is the root partition
@@ -241,8 +309,8 @@ def calculate_partition_size_and_offset(image_file):
             # iterate disk.partitions which only returns
             # parted.PARTITION_NORMAL partitions
             geometry = partition.geometry
-            linux_offset = geometry.start * 512
-            linux_size = geometry.length * 512
+            linux_offset = geometry.start * SECTOR_SIZE
+            linux_size = geometry.length * SECTOR_SIZE
             linux_partition = partition
             break
 
@@ -251,6 +319,43 @@ def calculate_partition_size_and_offset(image_file):
     assert linux_partition is not None, (
         "Couldn't find root partition on %s" % image_file)
     return vfat_size, vfat_offset, linux_size, linux_offset
+
+
+def calculate_android_partition_size_and_offset(image_file):
+    """Return the size and offset of the android partitions.
+
+    Both the size and offset are in bytes.
+
+    :param image_file: A string containing the path to the image_file.
+    :return: A list of (offset, size) pairs.
+    """
+    # Here we can use parted.Device to read the partitions because we're
+    # reading from a regular file rather than a block device.  If it was a
+    # block device we'd need root rights.
+    vfat_partition = None
+    disk = Disk(Device(image_file))
+    partition_info = []
+    for partition in disk.partitions:
+        # Will ignore any partitions before boot and of type EXTENDED
+        if 'boot' in partition.getFlagsAsString():
+            vfat_partition = partition
+            geometry = partition.geometry
+            partition_info.append((geometry.start * SECTOR_SIZE,
+                                   geometry.length * SECTOR_SIZE))
+        elif (vfat_partition is not None and
+              partition.type != PARTITION_EXTENDED):
+            geometry = partition.geometry
+            partition_info.append((geometry.start * SECTOR_SIZE,
+                                   geometry.length * SECTOR_SIZE))
+        # NB: don't use vfat_partition.nextPartition() as that might return
+        # a partition of type PARTITION_FREESPACE; it's much easier to
+        # iterate disk.partitions which only returns
+        # parted.PARTITION_NORMAL partitions
+    assert vfat_partition is not None, (
+        "Couldn't find boot partition on %s" % image_file)
+    assert len(partition_info) == 5
+    return partition_info
+
 
 def get_android_partitions_for_media(media, board_config):
     """Return the device files for all the Android partitions of media.
@@ -267,8 +372,14 @@ def get_android_partitions_for_media(media, board_config):
         media.path, 1 + board_config.mmc_part_offset)
     system_partition = _get_device_file_for_partition_number(
         media.path, 2 + board_config.mmc_part_offset)
-    cache_partition = _get_device_file_for_partition_number(
-        media.path, 3 + board_config.mmc_part_offset)
+    if board_config.mmc_part_offset != 1:
+        cache_partition = _get_device_file_for_partition_number(
+            media.path, 3 + board_config.mmc_part_offset)
+    else:
+        # In the current setup, partition 4 is always the
+        # extended partition container, so we need to skip 4 
+        cache_partition = _get_device_file_for_partition_number(
+            media.path, 5)
     data_partition = _get_device_file_for_partition_number(
         media.path, 5 + board_config.mmc_part_offset)
     sdcard_partition = _get_device_file_for_partition_number(
@@ -276,9 +387,18 @@ def get_android_partitions_for_media(media, board_config):
 
     assert boot_partition is not None, (
         "Could not find boot partition for %s" % media.path)
+    assert system_partition is not None, (
+        "Could not find system partition for %s" % media.path)
+    assert cache_partition is not None, (
+        "Could not find cache partition for %s" % media.path)
+    assert data_partition is not None, (
+        "Could not find data partition for %s" % media.path)
+    assert sdcard_partition is not None, (
+        "Could not find sdcard partition for %s" % media.path)
 
     return boot_partition, system_partition, cache_partition, \
         data_partition, sdcard_partition
+
 
 def get_boot_and_root_partitions_for_media(media, board_config):
     """Return the device files for the boot and root partitions of media.
@@ -330,6 +450,9 @@ def _get_udisks_device_path(device):
 def convert_size_to_bytes(size):
     """Convert a size string in Kbytes, Mbytes or Gbytes to bytes."""
     unit = size[-1].upper()
+    # no unit? (ends with a digit)
+    if unit in '0123456789':
+        return int(size)
     real_size = int(size[:-1])
     if unit == 'K':
         real_size = real_size * 1024

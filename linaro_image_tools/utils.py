@@ -19,6 +19,11 @@
 
 import os
 import platform
+import subprocess
+import re
+import logging
+import tempfile
+import tarfile
 
 try:
     from CommandNotFound import CommandNotFound
@@ -27,6 +32,94 @@ except ImportError:
 
 from linaro_image_tools import cmd_runner
 
+
+def path_in_tarfile_exists(path, tar_file):
+    tarinfo = tarfile.open(tar_file, 'r:gz')
+    try:
+        tarinfo.getmember(path)
+        return True
+    except KeyError:
+        return False
+    tarinfo.close()
+
+def verify_file_integrity(sig_file_list):
+    """Verify a list of signature files.
+
+    The parameter is a list of filenames of gpg signature files which will be
+    verified using gpg. For each of the files it is assumed that there is an
+    sha1 hash file with the same file name minus the '.asc' extension.
+
+    Each of the sha1 files will be checked using sha1sums. All files listed in
+    the sha1 hash file must be found in the same directory as the hash file.
+    """
+
+    gpg_sig_ok = True
+    gpg_out = ""
+
+    verified_files = []
+    for sig_file in sig_file_list:
+        hash_file = sig_file[0:-len('.asc')]
+        tmp = tempfile.NamedTemporaryFile()
+
+        try:
+             cmd_runner.run(['gpg', '--status-file={0}'.format(tmp.name),
+                             '--verify', sig_file]).wait()
+        except cmd_runner.SubcommandNonZeroReturnValue:
+            gpg_sig_ok = False
+            gpg_out = gpg_out + tmp.read()
+
+        tmp.close()
+
+        if os.path.dirname(hash_file) == '':
+            sha_cwd = None
+        else:
+            sha_cwd = os.path.dirname(hash_file)
+
+        try:
+            sha1sums_out, _ = cmd_runner.Popen(
+                                            ['sha1sum', '-c', hash_file],
+                                            stdout=subprocess.PIPE,
+                                            stderr=subprocess.STDOUT,
+                                            cwd=sha_cwd
+                                            ).communicate()
+        except cmd_runner.SubcommandNonZeroReturnValue as inst:
+            sha1sums_out = inst.stdout
+
+        for line in sha1sums_out.splitlines():
+            sha1_check = re.search(r'^(.*):\s+OK', line)
+            if sha1_check:
+                verified_files.append(sha1_check.group(1))
+
+    return verified_files, gpg_sig_ok, gpg_out
+
+def check_file_integrity_and_log_errors(sig_file_list, binary, hwpacks):
+    """
+    Wrapper around verify_file_integrity that prints error messages to stderr
+    if verify_file_integrity finds any problems.
+    """
+    verified_files, gpg_sig_pass, _ = verify_file_integrity(sig_file_list)
+
+    # Check the outputs from verify_file_integrity
+    # Abort if anything fails.
+    if len(sig_file_list):
+        if not gpg_sig_pass:
+            logging.error("GPG signature verification failed.")
+            return False, []
+    
+        if not os.path.basename(binary) in verified_files:
+            logging.error("OS Binary verification failed")
+            return False, []
+        
+        for hwpack in hwpacks:
+            if not os.path.basename(hwpack) in verified_files:
+                logging.error("Hwpack {0} verification failed".format(hwpack))
+                return False, []
+    
+        for verified_file in verified_files:
+            logging.info('Hash verification of file {0} OK.'.format(
+                                                                verified_file))
+    
+    return True, verified_files
 
 def install_package_providing(command):
     """Install a package which provides the given command.
@@ -52,15 +145,21 @@ def install_package_providing(command):
         ['apt-get', '--yes', 'install', package], as_root=True).wait()
 
 
+def has_command(command):
+    """Check the given command is available."""
+    try:
+        cmd_runner.run(
+            ['which', command], stdout=open('/dev/null', 'w')).wait()
+        return True
+    except cmd_runner.SubcommandNonZeroReturnValue:
+        return False
+
 def ensure_command(command):
     """Ensure the given command is available.
 
     If it's not, look up a package that provides it and install that.
     """
-    try:
-        cmd_runner.run(
-            ['which', command], stdout=open('/dev/null', 'w')).wait()
-    except cmd_runner.SubcommandNonZeroReturnValue:
+    if not has_command(command):
         install_package_providing(command)
 
 def find_command(name, prefer_dir=None):

@@ -1,0 +1,258 @@
+#!/usr/bin/env python
+# Copyright (C) 2010, 2011 Linaro
+#
+# Author: Deepti B. Kalakeri <deepti.kalakeri@linaro.org>
+#
+# This file is part of Linaro Image Tools. It adds the feature
+# to include/replace a debian package into the given hwpack.
+# We might need to change the manifest and Packages file in the 
+# future to match the hardware pack v2 changes when available.
+#
+# Linaro Image Tools is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Linaro Image Tools is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Linaro Image Tools.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+import os
+import sys
+import shutil
+import glob
+import logging
+import tarfile
+import tempfile
+import argparse
+import datetime
+import fileinput
+from debian.deb822 import Packages
+from linaro_image_tools.hwpack.packages import get_packages_file
+from linaro_image_tools.hwpack.packages import FetchedPackage
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-t", "--hwpack-name", dest="hwpack_name",
+                    help="Specific hwpack-name to use (default: None)")
+parser.add_argument("-p", "--deb-pack", dest="deb_pack",
+                    help="Specific debian package to replace (default: None).")
+parser.add_argument("-r", "--prefix-pkg-remove", dest="prefix_pkg_remove",
+                    help="Specify the prefix of the old debian package to "\
+                          "replace (default: None).")
+parser.add_argument("-n", "--append-build-number", dest="build_number",
+                    help="Specify the build number if any to be used in new "\
+                          "hwpack name (default: None).")
+parser.add_argument("-i", "--in-place", action="store_true", dest="inplace",
+                    help="Modify the hwpack rather than creating a new one")
+parser.add_argument("-d", "--debug-output", action="store_true", dest="debug",
+                    help="Verbose messages are displayed when specified")
+
+logger = logging.getLogger("linaro-hwpack-replace")
+
+
+class DummyStanza(object):
+
+    def __init__(self, info):
+        self.info = info
+
+    def dump(self, fd):
+        fd.write(get_packages_file([self.info]))
+
+
+def set_logging_param(args):
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    formatter = logging.Formatter("%(message)s")
+    ch.setFormatter(formatter)
+    logger.setLevel(logging.INFO)
+    logger.addHandler(ch)
+    if args.debug:
+        ch.setLevel(logging.DEBUG)
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        ch.setFormatter(formatter)
+        logger.setLevel(logging.DEBUG)
+
+
+def get_hwpack_name(old_hwpack, build_number):
+    # The build_number would be the job build number.
+    # Valid value for the build_number would be available for ex 
+    # when l-h-r is used in the jenkins.
+    timestamp = [datetime.datetime.utcnow().strftime("%Y%m%d-%H%M")]
+    hwpack_name_parts = (old_hwpack.split('_', 3))
+    new_hwpack_name = [('_'.join(hwpack_name_parts[:2] + timestamp))]
+
+    if build_number is not None:
+        job_build_number = [''.join('b' + build_number)]
+        new_hwpack_name = [('_'.join(new_hwpack_name + job_build_number))]
+    
+    return('_'.join(new_hwpack_name + hwpack_name_parts[3:]))
+
+
+def should_remove(package_name, prefix_pkg_remove):
+    # hwpack-* Package is a metadata package that contain reference to the 
+    # linux-linaro-omap that was previously present in the hwpack.
+    # We need to make sure we dont write the hwpack-* related
+    # package information into Package, otherwise it would try to download the old
+    # kernel package that was present in the hwpack than installing the new one.
+    if (package_name.startswith(prefix_pkg_remove) or 
+        package_name.startswith("hwpack-")):
+        return True
+    return False
+
+def verify_existing_debians(debpack_dirname, prefix_pkg_remove):
+    """
+       Find if the debian file with the same name exists,
+       if it exists then remove it and replace with the new deb file
+       If similar debian file exists then remove it
+    """
+
+    deb_file_to_remove = None
+
+    try:
+        for deb_filename in os.listdir(debpack_dirname):
+            root, ext = os.path.splitext(deb_filename)
+            if should_remove(root, prefix_pkg_remove) and ext == '.deb':
+                deb_file_to_remove =  os.path.join(debpack_dirname, deb_filename)
+                os.remove(deb_file_to_remove)
+    except Exception, details:
+        logger.error("Error Details: %s", details)
+
+
+def modify_manifest_info(tempdir, new_debpack_info, prefix_pkg_remove):
+    """ Modify the manifest file to include the new debian information """
+
+    debpack_manifest_fname = os.path.join(tempdir, "manifest")
+    if new_debpack_info is not None:
+        new_debpack_line = '%s=%s\n' % (new_debpack_info.name,
+                                        new_debpack_info.version)
+
+    for line in fileinput.FileInput(debpack_manifest_fname, inplace=1):
+        if not should_remove(line, prefix_pkg_remove):
+            sys.stdout.write(line)
+
+    if new_debpack_info is not None:
+        logger.debug("Adding the new debian package info to manifest")
+        fout = open(debpack_manifest_fname, "a")
+        fout.write(new_debpack_line)
+        fout.close()
+    else:
+        logger.debug("Removed the debian package info from manifest")
+
+
+def modify_Packages_info(debpack_dirname, new_debpack_info, prefix_pkg_remove):
+    """ Modify the Packages file to include the new debian information """
+
+    debpack_Packages_fname = os.path.join(debpack_dirname, "Packages")
+    try:
+        output = []
+
+        f = open(debpack_Packages_fname, "r+")
+        for stanza in Packages.iter_paragraphs(f):
+            if not should_remove(stanza["Package"], prefix_pkg_remove):
+                output.append(stanza)
+        if new_debpack_info is not None:
+            output.append(DummyStanza(new_debpack_info))
+
+        f.seek(0,0)
+        f.truncate()
+        for stanza in output:
+            stanza.dump(f)
+            f.write("\n")
+    finally:
+        f.close()
+
+
+def main():
+    # Validate that all the required information is passed on the command line
+    args = parser.parse_args()
+    if (args.hwpack_name == None or args.prefix_pkg_remove == None):
+        parser.print_help()
+        parser.error("You must specify both hwpack name "\
+                     "and the debian package information\n")
+        return 1
+
+    set_logging_param(args)
+
+    old_hwpack = args.hwpack_name
+    new_deb_file_to_copy = args.deb_pack
+    prefix_pkg_remove = args.prefix_pkg_remove
+    build_number = args.build_number
+    status = 0
+    tempdir = ""
+
+    try:
+        # Get the new hardware pack name
+        hwpack_name = get_hwpack_name(old_hwpack, build_number)
+        if hwpack_name == None:
+            logger.error("Did not get a valid hwpack name, exiting")
+            return status
+
+        # untar the hardware pack and extract all the files in it
+        tar = tarfile.open(old_hwpack, "r:gz")
+        tempdir = tempfile.mkdtemp()
+        tar.extractall(tempdir)
+        tar.close()
+
+        # Search if a similar package with the same name exists, if yes then
+        # replace it. IF the old and new debian have the same name then we
+        # are still replacing the old one with the new one.
+        debpack_dirname = os.path.join(tempdir, 'pkgs/')
+        if not os.path.exists(debpack_dirname):
+            logger.error("Failed to extract the hwpack: %s ", old_hwpack)
+            return status
+
+        new_debpack_info = None
+        if new_deb_file_to_copy is not None:
+            new_debpack_info = FetchedPackage.from_deb(new_deb_file_to_copy)
+
+        verify_existing_debians(debpack_dirname, prefix_pkg_remove)
+
+        # Copy the new debian file to the pkgs dir,
+        if new_deb_file_to_copy is not None:
+            shutil.copy2(new_deb_file_to_copy, debpack_dirname)
+
+        modify_manifest_info(tempdir, new_debpack_info, prefix_pkg_remove)
+
+        modify_Packages_info(debpack_dirname, new_debpack_info, prefix_pkg_remove)
+
+        #tar the hardware pack with the new debian file included in it
+        tar = tarfile.open(hwpack_name , "w:gz")
+        origdir = os.getcwd()
+        os.chdir(tempdir)
+        for file_name in glob.glob('*'):
+            tar.add(file_name, recursive=True)
+        tar.close()
+
+        # Retain old hwpack name instead of using a new name
+        os.chdir(origdir)
+        if args.inplace:
+            os.rename(hwpack_name, old_hwpack)
+            hwpack_name = old_hwpack
+
+    except Exception, details:
+        logger.error("Error Details: %s", details)
+        status = 1
+
+    finally:
+        if os.path.exists(tempdir):
+            shutil.rmtree(tempdir)
+
+    if status == 0:
+        logger.info("The debian package '%s' has been been included in '%s'",
+                     new_deb_file_to_copy, hwpack_name)
+        print hwpack_name
+    else:
+        logger.error("Injecting the debian package '%s' failed", new_deb_file_to_copy)
+
+    return status
+
+
+if __name__ == '__main__':
+    sys.exit(main())

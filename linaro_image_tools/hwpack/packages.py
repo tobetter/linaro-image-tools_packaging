@@ -193,7 +193,7 @@ class LocalArchiveMaker(TemporaryDirectoryManager):
         with open(os.path.join(tmpdir, 'Packages'), 'w') as packages_file:
             packages_file.write(get_packages_file(local_debs, rel_to=tmpdir))
         if label:
-            proc = cmd_runner.run(
+            cmd_runner.run(
                 ['apt-ftparchive',
                  '-oAPT::FTPArchive::Release::Label=%s' % label,
                  'release',
@@ -480,7 +480,7 @@ class IsolatedAptCache(object):
         logger.debug("Writing apt configs")
         self.tempdir = tempfile.mkdtemp(prefix="hwpack-apt-cache-")
         dirs = ["var/lib/dpkg",
-                "etc/apt/",
+                "etc/apt/sources.list.d",
                 "var/cache/apt/archives/partial",
                 "var/lib/apt/lists/partial",
                ]
@@ -506,6 +506,8 @@ class IsolatedAptCache(object):
                     'Package: *\n'
                     'Pin: release l=%s\n'
                     'Pin-Priority: 1001\n' % self.prefer_label)
+        # XXX: This is a temporary workaround for bug 885895.
+        apt_pkg.config.set("Dir::bin::dpkg", "/bin/false")
         self.cache = Cache(rootdir=self.tempdir, memonly=True)
         logger.debug("Updating apt cache")
         self.cache.update()
@@ -674,19 +676,35 @@ class PackageFetcher(object):
             base = os.path.basename(candidate.filename)
             result_package = FetchedPackage.from_apt(candidate, base)
             fetched[package] = result_package
-        for package in packages:
-            self.cache.cache[package].mark_install(auto_fix=False)
+
+        def check_no_broken_packages():
             if self.cache.cache.broken_count:
                 raise DependencyNotSatisfied(
                     "Unable to satisfy dependencies of %s" %
                     ", ".join([p.name for p in self.cache.cache
                         if p.is_inst_broken]))
+
+        for package in packages:
+            try:
+                self.cache.cache[package].mark_install(auto_fix=True)
+            except SystemError:
+                # Either we raise a DependencyNotSatisfied error
+                # if some packages are broken, or we raise the original
+                # error if there was another cause
+                check_no_broken_packages()
+                raise
+            # Check that nothing was broken, even if mark_install didn't
+            # raise SystemError, just to make sure.
+            check_no_broken_packages()
         self._filter_ignored(fetched)
         if not download_content:
+            self.cache.cache.clear()
             return fetched.values()
         acq = apt_pkg.Acquire(DummyProgress())
         acqfiles = []
         for package in self.cache.cache.get_changes():
+            if (package.marked_delete or package.marked_keep):
+                continue
             logger.debug("Fetching %s ..." % package)
             candidate = package.candidate
             base = os.path.basename(candidate.filename)
@@ -708,4 +726,5 @@ class PackageFetcher(object):
                     "The item %r could not be fetched: %s" %
                     (acqfile.destfile, acqfile.error_text))
             result_package.content = open(destfile)
+            result_package._file_path = destfile
         return fetched.values()

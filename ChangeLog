@@ -1,3 +1,3965 @@
+2011-11-17  Danilo Segan  <danilo@canonical.com>
+
+	* linaro_image_tools/__version__.py:
+
+	Release 2011.11
+
+2011-11-17  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add VExpress support in linaro-android-media-create.
+
+2011-11-16  Jon Medhurst (Tixy)  <jon.medhurst@linaro.org>
+
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add vexpress-a9 test case for android.
+
+2011-11-16  Jon Medhurst (Tixy)  <jon.medhurst@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add vexpress-a9 platform to linaro-android-media-create
+	
+	This change also adds generation of 'boot.scr' as the vexpress U-Boot
+	will shortly be changed to read this.
+
+2011-11-15  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/fetch_image_settings.yaml:
+
+	Change description of unsupported Samsung boards.
+
+2011-10-24  Andy Doan  <andy.doan@linaro.org>
+
+	* linaro_image_tools/fetch_image_settings.yaml:
+
+	S5VP310 support has been dropped to focus on Origen
+	
+	Denote this in our UIs to let users know
+
+2011-11-15  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Fix unit tests so they don't execute commands using sudo.
+
+2011-11-14  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Stop test suite from moving files using sudo.
+
+2011-11-15  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Fix Snowball Android boot parameters and support the Snowball's special uboot.
+
+2011-11-14  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Clean up boot args and fix unit test to run with the changes. Also add one test for SnowballSdConfig that was missing.
+
+2011-11-09  Bernhard Rosenkraenzer  <Bernhard.Rosenkranzer@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+
+	Fix snowball_emmc support as well (not just snowball_sd)
+
+2011-11-09  Bernhard Rosenkraenzer  <Bernhard.Rosenkranzer@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	More adaptions to snowball's "unique" uboot
+
+2011-11-09  Bernhard Rosenkraenzer  <Bernhard.Rosenkranzer@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Fix syntax error
+
+2011-11-09  Bernhard Rosenkraenzer  <Bernhard.Rosenkranzer@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Adapt to Android on Snowball using a custom uboot that takes
+	"fat load" instead of "fatload"
+
+2011-11-09  Bernhard Rosenkraenzer  <Bernhard.Rosenkranzer@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+
+	Attempt to fix boot args for Android on Snowball SD
+
+2011-11-14  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* linaro_image_tools/hwpack/packages.py:
+
+	Add a workaround for bug 885895, while it's not fixed in python-apt
+
+2011-11-14  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* linaro_image_tools/hwpack/packages.py:
+
+	Add a workaround for bug 885895
+
+2011-10-28  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/fetch_image.py:
+
+	Merging in updates to where xdg library is imported
+
+2011-10-28  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/fetch_image.py:
+
+	Restore global xdg import.
+
+2011-10-27  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-image-indexer:
+	* linaro_image_tools/fetch_image.py:
+	* linaro_image_tools/fetch_image_settings.yaml:
+
+	Merging in indexer update.
+
+2011-10-27  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-image-indexer:
+
+	Updated paths to match the server, not local development.
+
+2011-10-27  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/fetch_image_settings.yaml:
+
+	Updated settings to give more human names to releases.
+
+2011-10-27  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/__version__.py:
+	* do-release:
+	* linaro-android-media-create:
+	* linaro-fetch-image-ui:
+	* linaro-hwpack-create:
+	* linaro-hwpack-replace:
+	* linaro-image-indexer:
+	* linaro-media-create:
+	* linaro_image_tools/fetch_image.py:
+	* linaro_image_tools/fetch_image_settings.yaml:
+	* linaro_image_tools/hwpack/builder.py:
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+	* linaro_image_tools/hwpack/tests/test_builder.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+	* linaro_image_tools/hwpack/tests/test_hardwarepack.py:
+	* linaro_image_tools/media_create/__init__.py:
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/rootfs.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+	* linaro_image_tools/tests/test_pyflakes.py:
+	* linaro_image_tools/tests/test_utils.py:
+	* linaro_image_tools/utils.py:
+	* setup.py:
+
+	Updated indexer to cope with new layout of releases.linaro.org and pick up Oneiric snapshots.
+	Due to lots of renaming the GUI isn't translating distro names (linaro-o-ubuntu-desktop isn't translated into Ubuntu Desktop), but we will have to live with that for the moment.
+
+2011-10-27  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/__version__.py:
+	* do-release:
+	* linaro-android-media-create:
+	* linaro-fetch-image-ui:
+	* linaro-hwpack-create:
+	* linaro-hwpack-replace:
+	* linaro-media-create:
+	* linaro_image_tools/fetch_image.py:
+	* linaro_image_tools/fetch_image_settings.yaml:
+	* linaro_image_tools/hwpack/builder.py:
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+	* linaro_image_tools/hwpack/tests/test_builder.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+	* linaro_image_tools/hwpack/tests/test_hardwarepack.py:
+	* linaro_image_tools/media_create/__init__.py:
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/rootfs.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+	* linaro_image_tools/tests/test_pyflakes.py:
+	* linaro_image_tools/tests/test_utils.py:
+	* linaro_image_tools/utils.py:
+	* setup.py:
+
+	Merge trunk.
+
+2011-10-27  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-image-indexer:
+	* linaro_image_tools/fetch_image.py:
+
+	Clarify an assert, enable logging and experiment with getting both old and new structures.
+
+2011-10-26  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-image-indexer:
+
+	Remove code that was commented out.
+
+2011-08-22  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-image-indexer:
+	* linaro_image_tools/fetch_image.py:
+
+	Proper handling of the new way of telling the indexer to index a directory:
+	
+	crawler.add_directory_parse_list(
+	RELEASES_WWW_DOCUMENT_ROOT,
+	RELEASE_URL,
+	
+	(["hwpack"], ["/platform/"]),
+	This tells the indexer to look for a URL that matches the string "hwpack", but doesn't match "/platform/".
+	
+	["platform", "build", "hardware"],
+	These are the columns to put in the database
+	
+	"release_hwpacks",
+	["platform", "", "", ("hardware", r"hwpack_linaro-(.*?)_")])
+	Once a URL has been split up by os.sep, this is how to file what is found. In this instance the first directory is used as the platform value in the database entry to be created. The tuple is of the form (column name, regexp), where regexp.group(1) is used as the value stored in the database in the colum "column name". In this example the build column is not filled in, but it is created in the database. This is to allow for a database where sometimes this column is used. This will be the case when transitioning from the old to new server layout.
+	
+	The UI currently won't cope with the NULL entry in the build column properly, but at least the indexer will work.
+	
+	This has been tested with an example layout of the new server structure, but not with the old server structure, so is not ready to merge.
+
+2011-08-19  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-image-indexer:
+	* linaro_image_tools/fetch_image.py:
+
+	Updating server indexer.
+	Target is to get rid of all the special casing and make the indexer better at excluding/including files. Have given the URL verifier variable a new structure, so now it is a tuple of two lists. The first element of the tuple is a list of regexps that should match, the second is a list of regexps that shouldn't match.
+
+2011-10-26  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/fetch_image.py:
+	* linaro_image_tools/fetch_image_settings.yaml:
+
+	Bring in fetch_image changes.
+
+2011-10-20  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/fetch_image.py:
+
+	Updating fetch image library to match new linaro media create command line.
+
+2011-10-20  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/fetch_image.py:
+
+	Updated to match new lmc command line params.
+
+2011-10-20  Loïc Minier  <loic.minier@linaro.org>
+
+	* linaro_image_tools/fetch_image_settings.yaml:
+
+	Merge lp:~dooferlad/linaro-image-tools/11.09_fetch_image_update; adds 11.09
+	to list of available images.
+
+2011-10-05  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/fetch_image_settings.yaml:
+
+	Enable 11.09 release in linaro-fetch-image
+
+2011-10-20  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/__version__.py:
+
+	Post-release version bump to 2011.10.1
+
+2011-10-20  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/__version__.py:
+
+	Release 2011.10
+
+2011-10-20  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/__init__.py:
+
+	Display qemu version in l-m-c and l-a-m-c --version output.
+
+2011-10-19  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/__init__.py:
+
+	Fix a comment typo.
+
+2011-10-19  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/__init__.py:
+
+	Add qemu-arm-static version to l-m-c and l-a-m-c --version output.
+
+2011-10-20  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-media-create:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/rootfs.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Update rootfs /etc/network/interfaces with interfaces specified in the hwpack.
+
+2011-10-19  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/rootfs.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add tests.
+
+2011-10-19  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-media-create:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/rootfs.py:
+
+	Add one entry in rootfs /etc/network/interfaces for each interface specified in the hwpack to bring them up automatically with dhcp.
+
+2011-10-18  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/__init__.py:
+
+	Add l-m-c and l-a-m-c command line parameters using dashes for consistency.
+
+2011-10-12  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/__init__.py:
+
+	Swap places for the dash and underscore option aliases so that the ones with dashes are displayed first in the help.
+
+2011-10-12  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/__init__.py:
+
+	Add aliases for command line options using dashes instead of underscores.
+
+2011-10-14  Deepti B. Kalakeri<deepti.kalakeri@linaro.org>
+
+	* linaro-hwpack-replace:
+
+	Addressing the review comments for the hwpack name changes
+
+2011-10-13  Deepti B. Kalakeri<deepti.kalakeri@linaro.org>
+
+	* linaro-hwpack-replace:
+
+	Addressing the review comments for the hwpack name changes
+
+2011-10-13  Deepti B. Kalakeri<deepti.kalakeri@linaro.org>
+
+	* linaro-hwpack-replace:
+
+	Adding an optional parameter to specify the build number to be used in new hwpack filename.
+
+2011-10-13  James Westby  <james.westby@linaro.org>
+
+	* linaro-media-create:
+	* linaro_image_tools/tests/test_pyflakes.py:
+	* linaro_image_tools/tests/test_utils.py:
+	* linaro_image_tools/utils.py:
+
+	Support the new path for the rootfs dir within the tarball.
+	
+	live-build has changed the path that it puts the rootfs at
+	within the tarball, so we have to support both the old and
+	new locations.
+
+2011-10-13  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/utils.py:
+
+	Don't use Tarfile as a context manager.
+
+2011-10-12  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-media-create:
+	* linaro_image_tools/tests/test_pyflakes.py:
+	* linaro_image_tools/tests/test_utils.py:
+	* linaro_image_tools/utils.py:
+
+	Add path_in_tarfile_exists() and use it to detect new Live image format.
+
+2011-10-12  Deepti B. Kalakeri<deepti.kalakeri@linaro.org>
+
+	* linaro-hwpack-replace:
+
+	Changing the timestamp on the hwpack to use utc time than the local time and fixing the tempdir cleanup
+
+2011-10-12  Deepti B. Kalakeri<deepti.kalakeri@linaro.org>
+
+	* linaro-hwpack-replace:
+
+	Changing the timestamp on the hwpack to use utc time than the local time and fixing the tempdir cleanup
+
+2011-10-12  Deepti B. Kalakeri<deepti.kalakeri@linaro.org>
+
+	* linaro-hwpack-replace:
+
+	Add a -i, --in-place option to modify the specified hwpack rather than making a new one and also cleanup tempdir
+
+2011-10-11  Paul Larson  <paul.larson@canonical.com>
+
+	* linaro-hwpack-replace:
+
+	* Add a -i, --in-place option to modify the specified hwpack rather than making a new one
+	* Cleanup the tempdir
+
+2011-10-07  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-hwpack-replace:
+
+	Enable just removing a package with linaro-hwpack-replace.
+
+2011-10-06  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-hwpack-replace:
+
+	Just remove the package if no replacement package passed to linaro-hwpack-replace.
+
+2011-10-06  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Make the boot_script hwpack field optional.
+
+2011-09-27  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Make boot_script field optional.
+
+2011-10-06  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Disable temp Omap fix for hwpacks V2, where it's not longer needed.
+
+2011-10-04  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Don't execute set_appropriate_tty for V2 hwpacks, since tty will be set explicitly.
+
+2011-10-05  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-android-media-create:
+	* linaro_image_tools/media_create/android_boards.py:
+
+	Use --dev mx53loco in linaro-android-media-create to be consistent with linaro-media-create. Add deprecation warning for --dev iMX53.
+
+2011-09-30  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-android-media-create:
+	* linaro_image_tools/media_create/android_boards.py:
+
+	Restore iMX53 board option and add a deprecation warning.
+
+2011-08-30  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+
+	Change --dev value for imx53 to mx53loco to be consistent with l-m-c.
+
+2011-10-05  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-android-media-create:
+
+	Remove experimental banner from linaro-android-media-create.
+
+2011-10-03  Andy Doan  <andy.doan@linaro.org>
+
+	* linaro-android-media-create:
+
+	l-a-m-c is no longer "experimental"
+
+2011-10-05  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/__version__.py:
+	* do-release:
+	* linaro-hwpack-create:
+	* linaro_image_tools/media_create/__init__.py:
+	* setup.py:
+
+	Enable -v/--version option.
+
+2011-10-04  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/__version__.py:
+
+	Change version back to numeric only.
+
+2011-10-04  Mattias Backman  <mattias.backman@linaro.org>
+
+	* do-release:
+
+	Move seds to function.
+
+2011-10-03  Mattias Backman  <mattias.backman@linaro.org>
+
+	* setup.py:
+
+	Change setup.py to get version from __version__.py
+
+2011-10-03  Mattias Backman  <mattias.backman@linaro.org>
+
+	* do-release:
+
+	Change do-release to update version in __version__.py
+
+2011-10-03  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/__version__.py:
+	* do-release:
+	* linaro-hwpack-create:
+	* linaro_image_tools/media_create/__init__.py:
+
+	Enable -v and get version from __version__.py
+
+2011-09-23  Mattias Backman  <mattias.backman@linaro.org>
+
+	* setup.py:
+
+	Post-release version bump to 2011.09.1
+
+2011-09-23  Mattias Backman  <mattias.backman@linaro.org>
+
+	* setup.py:
+
+	Release 2011.09
+
+2011-09-22  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-fetch-image-ui:
+	* linaro_image_tools/fetch_image_settings.yaml:
+
+	Add hwpack info dialog to fetch-image-ui.
+
+2011-09-06  Andy Doan  <andy.doan@linaro.org>
+
+	* linaro-fetch-image-ui:
+	* linaro_image_tools/fetch_image_settings.yaml:
+
+	add ability to provide hwpack descriptions to the user
+	
+	it would have been nice to add these descriptions somewhere
+	else in the YAML so you don't have to type the hwpack name
+	multiple times, but that would break backward compatibility
+	in the file
+
+2011-09-22  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-media-create:
+	* linaro_image_tools/media_create/boards.py:
+
+	Allow --dev snowball_sd with V2 hwpacks.
+
+2011-09-22  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-media-create:
+	* linaro_image_tools/media_create/boards.py:
+
+	Pay attention to the --dev option when using Snowball hwpacks, which can be used for sd (two partitions) and emmc (three partitions with loader population).
+
+2011-09-22  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/builder.py:
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+	* linaro_image_tools/hwpack/tests/test_builder.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Use SPL metadate fields for Omap X-loader and Samsung SPL. Use the <file>_dd metadata fields to specify dd seek.
+
+2011-09-22  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Change check that a flashable env should be created and dd:d.
+
+2011-09-21  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/tests/test_builder.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Merge trunk.
+
+2011-09-21  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Set the spl properties from hwpack metadata.
+
+2011-09-21  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Add spl_x properties to BoardConfig.
+
+2011-09-21  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/builder.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+
+	Make presence of spl_file and uboot_file indicate that these files should be put in the hwpack.
+
+2011-09-21  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Salvage some more forgotten Samsung code.
+
+2011-09-21  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Create flashable env if this is a Samsung hwpack.
+
+2011-09-21  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/hardwarepack.py:
+
+	Change x-loader to spl in hwpack metadata.
+
+2011-09-21  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/builder.py:
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+
+	Change x-loader to spl in hwpack config.
+
+2011-09-21  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Check for spl file instead of x_loader in install_omap_boot_loader.
+
+2011-09-21  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Get metata fields uboot_dd and spl_dd.
+
+2011-09-21  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Use spl file as Omap x-loader and dd spl file if offset is specified in spl_dd. This removes the need for the Samsung specific code.
+
+2011-09-20  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/builder.py:
+	* linaro_image_tools/hwpack/tests/test_builder.py:
+
+	Remove test for removing found packages.
+
+2011-09-20  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/builder.py:
+
+	Defer removing packages from hwpack list until they have been used.
+
+2011-09-21  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/tests/test_builder.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Change format of metadata field mmc_id and make it required.
+
+2011-09-21  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/tests/test_builder.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Correct whitespace.
+
+2011-09-20  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/tests/test_builder.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Change format of mmc_id to match mmc_option '0:1' and calculate mmc_part_offset from that.
+
+2011-09-19  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-media-create:
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Pull in board specific _make_boot_files() code to a single function.
+
+2011-09-15  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-media-create:
+
+	Set up logging, seems to be needed to enable warn logging in partitions.py.
+
+2011-09-15  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Use the same Samsung bootloader code for both v1 and v2 code paths.
+
+2011-09-15  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Save hwpack_format so we don't have to iterate over the hwpack tarballs every time we need the format version.
+
+2011-09-15  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Fix the broken get_format() fix.
+
+2011-09-15  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Fix glob pattern to accept leading * and fix some pep8 problems.
+
+2011-09-14  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Extract dd_file method to assert that the file exists, that it does not exceed a maximum size and dd it to the target.
+
+2011-09-14  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Change kernel files glob to be relative to chroot instead of chroot/boot/ and fix get_format() bug.
+
+2011-09-13  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Add uboot_dd field to hwpack metadata to be used to request that the uboot file is dd:d to the target.
+
+2011-09-13  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Consolidate _make_boot_files() methods into _make_boot_files_v2() with conditionals.
+
+2011-09-13  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Assert that format is 1.0 if partition_layout is not specified.
+
+2011-09-13  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Stop asserting a combination of V1 parameters for Igep v2 hwpack.
+
+2011-09-12  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Assert that the uboot bin file is found instead of asserting a certain set of hwpack v1 fields.
+
+2011-08-31  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Look for Origen spl file origen-spl.bin since upstream changed the expected name.
+
+2011-08-30  Angus Ainslie  <angus.ainslie@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Add the new spl name for Origen in upsream u-boot
+
+2011-08-30  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/builder.py:
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add hwpacks V2 support for Samsung boards.
+
+2011-08-29  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Fix extra empty line.
+
+2011-08-29  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Move dd(uboot_file) into hardwarepackhandler context.
+
+2011-08-29  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Move Samsung specifics to BoardConfig.
+
+2011-08-26  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/hardwarepack.py:
+
+	Add samsung fields to hwpack metadata.
+
+2011-08-26  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Add Samsung hwpack v2 fields to l-m-c.
+
+2011-08-26  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+
+	Add Samsung BL1, BL2 and ENV fields to hwpack config.
+
+2011-08-26  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/builder.py:
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Accept spl_file config field and have hwpack-create put that file in the hwpack.
+
+2011-08-26  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Get spl_file from hwpack if it's in there.
+
+2011-08-26  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Move Samsung constants from module scope to SamsungConfig class properties.
+
+2011-08-30  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add hwpacks V2 support for Snowball.
+
+2011-08-25  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Add load_start field needed by Snowball and make sure partition_layout field sticks to class scope.
+
+2011-08-25  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add tests for V2 get_sfdisk_cmd functions.
+
+2011-08-25  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Create V2 get_x_sfdisk_cmd functions.
+
+2011-08-25  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Use snowball_startup_files_config from metadata.
+
+2011-08-25  Mattias Backman  <mattias.backman@linaro.org>
+
+	* initrd-do:
+	* linaro_image_tools/tests/test_server_index.sqlite:
+	* linaro-fetch-image-ui:
+	* linaro-hwpack-replace:
+	* linaro_image_tools/fetch_image.py:
+	* linaro_image_tools/fetch_image_settings.yaml:
+	* linaro_image_tools/hwpack/packages.py:
+	* linaro_image_tools/hwpack/tests/test_packages.py:
+	* linaro_image_tools/media_create/__init__.py:
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+	* linaro_image_tools/tests/test_fetch_image.py:
+	* linaro_image_tools/tests/test_pyflakes.py:
+	* linaro_image_tools/tests/test_utils.py:
+	* linaro_image_tools/utils.py:
+	* setup.py:
+
+	Merge trunk.
+
+2011-08-25  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+	* linaro_image_tools/hwpack/tests/test_builder.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+	* linaro_image_tools/hwpack/tests/test_hardwarepack.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Merge add-vmlinuz.
+
+2011-08-17  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Allow reserved partition option for partition_layout.
+
+2011-08-05  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+
+	Merge hwpacks-v2-add-vmlinuz.
+
+2011-08-05  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Merge hwpackv2_add_x_loader.
+
+2011-08-05  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+
+	Enable reserved_bootfs_rootfs partitioning option.
+
+2011-08-05  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+
+	Merge hwpack-v2-uboot-not-required.
+
+2011-08-05  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+
+	Add snowball_startfiles_config file to hwpack-create config.
+
+2011-08-25  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add Origen support to linaro-android-media-create and also zero the u-boot env area on the SD card so that an old env doesn't get used.
+
+2011-08-24  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Make Samsung Android board configs inherit a common sfdisk_command function. Add a couple of unit tests.
+
+2011-08-22  Angus Ainslie  <angus.ainslie@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+
+	Add origen supprt 
+
+2011-08-22  Angus Ainslie  <angus.ainslie@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Zero the u-boot env on the SD card so an old one doesn't get used
+
+2011-08-24  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+	* linaro_image_tools/hwpack/tests/test_builder.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+	* linaro_image_tools/hwpack/tests/test_hardwarepack.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Add support for more hwpack v2.0 fields.
+	
+	kernel_file - path to the installed kernel
+	initrd_file - path to the installed initrd
+	dtb_file - path to the installed device tree binary
+	dtb_addr - device tree address
+	extra_boot_options - extra boot arg options
+	boot_script - filename relative to /boot where to put boot script
+	u_boot_in_boot_part - whether to put the uboot binary in the boot partition
+	extra_serial_opts - extra serial options
+
+2011-08-24  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Add debug printout.
+
+2011-08-18  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Accept globs in kernel file fields.
+
+2011-08-18  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+
+	Merge hwpackv2_add_x_loader.
+
+2011-08-18  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/tests/test_config.py:
+
+	Restore a test that was lost along the way.
+
+2011-08-18  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+
+	Fix type of uboot_in_boot_part in comment.
+
+2011-08-18  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+	* linaro_image_tools/hwpack/tests/test_hardwarepack.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Add tests for metadata output.
+
+2011-08-18  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+
+	Add unit tests for more fields.
+
+2011-08-18  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+
+	Add unit tests for more fields.
+
+2011-08-18  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/tests/test_builder.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+
+	Make a couple of more fields non required and clean up tests.
+
+2011-08-18  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Merge hwpackv2_add_x_loader
+
+2011-08-18  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Add test for kernel_file.
+
+2011-08-17  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Rename vmlinuz and initrd fields to kernel_file and initrd_file to be consistent with dtb_file, kernel_addr etc.
+
+2011-08-17  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Rename u-boot_in_boot_part to use underscore as separator.
+
+2011-08-05  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+
+	Make dtb_file not required.
+
+2011-08-04  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Remove target parameter from get_metadata_field and clean up.
+
+2011-08-04  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Add extra_serial_opts to hwpack metadata.
+
+2011-08-04  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Add boot_script and u-boot_in_boot_part field in hwpack metadata.
+
+2011-08-04  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Add extra_boot_options field to hwpack metadata.
+
+2011-08-04  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Rename fdt field to dtb_file to be consistent with dtb_addr.
+
+2011-08-03  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Add dtb_addr field to hwpack metadata.
+
+2011-08-03  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Add vmlinuz, initrd and fdt fields in hwpack metadata.
+
+2011-08-24  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/builder.py:
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+	* linaro_image_tools/hwpack/tests/test_builder.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add TI x-loader support for hwpacks V2 format.
+
+2011-08-18  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+
+	Merge hwpack-v2-uboot-not-required.
+
+2011-08-17  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/tests/test_builder.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+
+	Rename u-boot-file and u-boot-package fields to use underscore like all the hwpack v2 fields.
+
+2011-08-05  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+
+	Make the u-boot fields not required in hwpack metadata.
+
+2011-08-05  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+
+	Make x-loader hwpack fields not required.
+
+2011-08-03  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Fix test_install_omap_boot_loader to work with an extra parameter.
+
+2011-08-03  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Add l-m-c support for having OMAP MLO file in hwpack.
+
+2011-08-03  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/tests/test_config.py:
+
+	Add tests for x-loader config fields. Add one missing test for u-boot-package config.
+
+2011-08-02  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/hwpack/builder.py:
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+	* linaro_image_tools/hwpack/tests/test_builder.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+
+	Added support for x_loader_file and x_loader_package fields in the hwpack config.
+	Fixed up tests to not fail with new fields.
+	TODO: Test new fields.
+
+2011-08-24  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-hwpack-replace:
+
+	Fix hwpack name in linaro-hwpack-replace.
+
+2011-08-23  deeptik<deepti.kalakeri@linaro.org>
+
+	* linaro-hwpack-replace:
+
+	Fixing the new hwpack name to contain minutes info instead of seconds
+
+2011-08-24  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/fetch_image.py:
+	* linaro_image_tools/fetch_image_settings.yaml:
+
+	Logs the output of linaro-media-create as run by linaro-fetch-image[-ui].
+
+2011-08-22  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/fetch_image.py:
+	* linaro_image_tools/fetch_image_settings.yaml:
+
+	Add a log file for linaro-media-create output.
+	Single line change to fetch_image_settings.yaml - removing the now deprecated lt-mx53loco
+
+2011-08-23  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Allow Snowball startfiles.cfg to specify full path to each individual startfile. If an absolute path is not specified, the files are assumed to be in /boot of the chroot.
+
+2011-08-23  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Detect absolute path in startfiles.cfg instead of checking that the file exists.
+
+2011-08-22  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Correct comment text.
+
+2011-08-22  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Remove hacky extra check. Fix absolute path to be relative to the chroot and not system root.
+
+2011-08-22  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add support for absolute paths in Snowball startfiles.cfg. Also fallback to a hardcoded path to support u-boot packages that do not link u-boot.bin to /boot.
+
+2011-08-22  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/fetch_image_settings.yaml:
+
+	YAML updated for 11.08 release:
+	* Removed translasions of release names since they aren't required anymore.
+	* Renamed the imx53 board to its full and correct title: i.MX53 Quick Start.
+
+2011-08-22  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/fetch_image_settings.yaml:
+
+	(Hopefully) final update of UI settings for 11.08.
+
+2011-08-22  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/fetch_image_settings.yaml:
+
+	Updated YAML for 11.08 release
+
+2011-08-22  Mattias Backman  <mattias.backman@linaro.org>
+
+	* setup.py:
+
+	Post-release version bump to 2011.08.1
+
+2011-08-22  Mattias Backman  <mattias.backman@linaro.org>
+
+	* setup.py:
+
+	Release 2011.08
+
+2011-08-22  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-fetch-image-ui:
+
+	* All hardware that is available is shown on page 1
+	* If you chose hardware that doesn't have a build type available (release or snapshot) that build type is greyed out on page 2 with some help text saying why.
+
+2011-08-20  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-fetch-image-ui:
+
+	* All hardware that is available is shown on page 1
+	* If you chose hardware that doesn't have a build type available (release or snapshot) that build type is greyed out on page 2 with some help text saying why.
+
+2011-08-19  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-fetch-image-ui:
+
+	Changed default file system to ext4.
+
+2011-08-19  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-fetch-image-ui:
+
+	Changed default file system to ext4.
+
+2011-08-19  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/__init__.py:
+
+	Change --rootfs default to ext4.
+
+2011-08-19  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Look for u-boot.img before u-boot.bin which is needed when u-boot SPL is enabled for Pandaboard.
+
+2011-08-19  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Check for u-boot.img to be copied to the boot partition. If u-boot.img is not found, use u-boot.bin.
+
+2011-08-19  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-fetch-image-ui:
+
+	Updates around the end of the GUI:
+	* LMC settings page has advanced settings done properly
+	* New device choser
+	* New are you sure question when writing image to device.
+
+2011-08-18  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-fetch-image-ui:
+
+	Added an OK device choser. Unfortunately most of the information that you can get over dbus (http://hal.freedesktop.org/docs/DeviceKit-disks/Device.html) is mostly useless. My guess is that hard disks are much better supported than finding out about an SD card hanging of a USB writer.
+
+2011-08-18  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-fetch-image-ui:
+
+	Trying to get a decent dev choser. Not working so far!
+
+2011-08-18  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-fetch-image-ui:
+
+	lmc_settings page updates:
+	* Removed "are you sure" tick box
+	* Put advanced settings in proper UI element
+
+2011-08-19  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-fetch-image-ui:
+	* linaro_image_tools/fetch_image.py:
+
+	Pages 1 and 2 of the new IU are now complete.
+	
+	* Saying you want to run a simulation will generate a Beagle image to run on QEMU (tool does not run QEMU for you)
+	* Advanced options on page 2 allow for selecting an OS that isn't Ubuntu Desktop
+	* Unless you are selecting a snapshot build, page 3 is now linaro-media-create settings
+	
+	Part 3 of the updates will concentrate on the linaro-media-create settings page.
+
+2011-08-18  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-fetch-image-ui:
+	* linaro_image_tools/fetch_image.py:
+
+	Pages 1 and 2 of the new IU are now complete.
+	
+	* Saying you want to run a simulation will generate a Beagle image to run on QEMU (tool does not run QEMU for you)
+	* Advanced options on page 2 allow for selecting an OS that isn't Ubuntu Desktop
+	* Unless you are selecting a snapshot build, page 3 is now linaro-media-create settings
+	
+	Part 3 of the updates will concentrate on the linaro-media-create settings page.
+
+2011-08-17  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-fetch-image-ui:
+	* linaro_image_tools/fetch_image.py:
+
+	Added advanced options to stable/dev page.
+
+2011-08-18  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/fetch_image.py:
+	* linaro_image_tools/tests/test_pyflakes.py:
+	* linaro_image_tools/tests/test_utils.py:
+
+	Fixes three problems shown by unit tests:
+	* Assert always runs - changed to raise AssertionError
+	* Updated test_pyflakes.py so the "redefinition of unused CommandNotFound" error is ignored again
+	* Test test_verify_files now passes (NamedTemporaryFile mocked to be predicatable)
+
+2011-08-18  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/fetch_image.py:
+	* linaro_image_tools/tests/test_pyflakes.py:
+	* linaro_image_tools/tests/test_utils.py:
+
+	Fixes three problems shown by unit tests:
+	* Assert always runs - changed to raise AssertionError
+	* Updated test_pyflakes.py so the "redefinition of unused CommandNotFound" error is ignored again
+	* Test test_verify_files now passes (NamedTemporaryFile mocked to be predicatable)
+
+2011-08-18  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-fetch-image-ui:
+	* linaro_image_tools/fetch_image.py:
+
+	Round 1 of updates to linaro-fetch-image-ui.
+	
+	This gives a new arrangement of the first two pages.
+
+2011-08-18  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-fetch-image-ui:
+	* linaro_image_tools/fetch_image.py:
+
+	Added a couple of module level constants.
+
+2011-08-17  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-fetch-image-ui:
+
+	If user has selected emulated system, don't let them write to a device (assumption is QEmu will run using an image file).
+
+2011-08-15  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-fetch-image-ui:
+
+	Re-arranged first two pages according to new UI design.
+
+2011-08-18  James Westby  <james.westby@linaro.org>
+
+	* linaro_image_tools/media_create/__init__.py:
+
+	Increase the default image size to 3G.
+
+2011-08-18  James Westby  <james.westby@linaro.org>
+
+	* linaro_image_tools/media_create/__init__.py:
+
+	Up the default image size to 3G.
+
+2011-08-18  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/tests/test_server_index.sqlite:
+	* linaro_image_tools/tests/test_fetch_image.py:
+
+	Modifications that change the fetch image library unit tests to use local files, not downloaded ones.
+
+2011-08-17  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/tests/test_fetch_image.py:
+
+	switch from using inspect to __file__ to determine the current file. While this is potentially less reliable, it is consistent with the rest of the code.
+
+2011-08-11  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/tests/test_fetch_image.py:
+
+	Fix possible problem with using a really old database for the test.
+
+2011-08-11  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/tests/test_server_index.sqlite:
+	* linaro_image_tools/tests/test_fetch_image.py:
+
+	Tests for linaro-fetch-image now use local files, not server files.
+
+2011-08-17  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/fetch_image.py:
+
+	Improve error reporting when linaro-fetch-image is passed a set of options that don't match any available builds. User will now receive helpful information on what doesn't match up.
+
+2011-08-12  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-fetch-image:
+	* linaro_image_tools/fetch_image.py:
+
+	Undo previous change - it was broken.
+	If an URL can not be pulled from the database we now log useful error messages, which are printed to the terminal by default.
+
+2011-08-12  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-fetch-image:
+
+	Quick spell check for the release/snapshot CLI parameter.
+
+2011-08-17  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/fetch_image.py:
+	* linaro_image_tools/tests/test_utils.py:
+	* linaro_image_tools/utils.py:
+
+	Improved the error handling around how linaro-fetch-image interacts with GPG.
+
+2011-08-15  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/fetch_image.py:
+	* linaro_image_tools/utils.py:
+
+	GPG interaction now uses --status-file to give us language independent output.
+
+2011-08-15  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/fetch_image.py:
+
+	Found another message not being passed as a tuple.
+
+2011-08-15  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/fetch_image.py:
+	* linaro_image_tools/tests/test_utils.py:
+	* linaro_image_tools/utils.py:
+
+	Bug fix: Was not passing a message correctly into the message queue correctly (not sent as tuple)
+	linaro-fetch-image[-ui] copes with GPG signates failing because the GPG key is missing from the users keyring more sensibly.
+
+2011-08-15  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/fetch_image_settings.yaml:
+
+	Added back some required parts of the YAML that didn't get added to bzr.
+
+2011-08-12  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/fetch_image_settings.yaml:
+
+	Added back some required parts of the yaml that apparently hadn't got into bzr.
+
+2011-08-12  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/fetch_image_settings.yaml:
+
+	Corrected Bug #824733
+
+2011-08-12  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/fetch_image_settings.yaml:
+
+	Corrected Bug #824733
+	Added in some new hardware packs.
+	Added note about need to support snowball, but need to investigate.
+
+2011-08-11  James Westby  <james.westby@linaro.org>
+
+	* linaro-hwpack-replace:
+
+	hwpack-replace: allow the caller to specify a prefix of packages to remove.
+
+2011-08-11  Deepti B. Kalakeri<deepti.kalakeri@linaro.org>
+
+	* linaro-hwpack-replace:
+
+	Adding a small comment and including the descrption abt hwpack removal into should_remove() and using the string to directly compare instead of string substitution
+
+2011-08-11  Deepti B. Kalakeri<deepti.kalakeri@linaro.org>
+
+	* linaro-hwpack-replace:
+
+	Addressing comments to include a small function (should_remove) to verify if package information
+	needs to be removed from the Packages and manifest file. Also, use the same function to remove
+	the debian packages matching the prefix of the package specified.
+
+2011-08-05  Deepti B. Kalakeri<deepti.kalakeri@linaro.org>
+
+	* linaro-hwpack-replace:
+
+	Changes to make it work for non linaro hwpack instead of making it work for linaro hwpack only
+
+2011-08-05  Deepti B. Kalakeri<deepti.kalakeri@linaro.org>
+
+	* linaro-hwpack-replace:
+
+	Removing un necessary backslash
+
+2011-08-05  Deepti B. Kalakeri<deepti.kalakeri@linaro.org>
+
+	* linaro-hwpack-replace:
+
+	This patch addresses review comments with the following changes:
+	1) Improve the description of the --prefix-pkg-remove arguement of l-h-r
+	2) Rectified indentation problem and removed un necessary backslash
+	3) Removed un used debian_pack_found variable
+	4) Gave a comment on why we need to remove the hwpack-linaro-* info
+
+2011-08-04  Deepti B. Kalakeri<deepti.kalakeri@linaro.org>
+
+	* linaro-hwpack-replace:
+
+	This patch fixes the bug Bug #816767 [linaro-hwpack-replace only replace same name deb pkg but in fact it needs a smart match]
+	It now replaces old deb (with a different name) package with a new hwpack,
+	so that l-m-c can determine which package is to be installed in later hwpack installation.
+	The changes adds the new option --prefix-pkg-remove to handle this where the user is needed to provide the 
+	prefix of the debian package that needs to be removed while including the new one.
+
+2011-08-10  James Westby  <james.westby@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Set initrd_high and fdt_high u-boot env vars on Panda.
+
+2011-07-09  David A. Long  <dave.long@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Set the initrd_high and the new fdt_high u-boot environment variables to prevent u-boot
+	from relocating the intial ramdisk and flattened device tree to the end of memory,
+	which would be in HIGHMEM on Panda and would therefore not work.
+
+2011-08-10  James Westby  <james.westby@linaro.org>
+
+	* linaro_image_tools/hwpack/packages.py:
+	* linaro_image_tools/hwpack/tests/test_packages.py:
+
+	Create /etc/apt/sources.list.d in IsolatedAptCache. Thanks to Rex Tsai.
+	
+	Newer apts require this dir to function, and so we have to create it in
+	our temp apt hierarchy.
+
+2011-08-08  Loïc Minier  <loic.minier@linaro.org>
+
+	* initrd-do:
+	* setup.py:
+
+	Merge lp:~lool/linaro-image-tools/initrd-do; adds a script to edit an initrd
+	interactively or automatically.
+
+2011-08-03  Loïc Minier  <loic.minier@linaro.org>
+
+	* setup.py:
+
+	Install initrd-do script.
+
+2011-08-03  Loïc Minier  <loic.minier@linaro.org>
+
+	* initrd-do:
+
+	Add new initrd-do script to interactively or automatically edit an initrd.
+
+2011-08-04  James Westby  <james.westby@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Add SMDKV310 support to linaro-android-media-create.
+
+2011-07-27  Angus Ainslie  <angus.ainslie@linaro.org>
+
+	* linaro_image_tools/media_create/partitions.py:
+
+	Undo 1 more change
+
+2011-07-27  Angus Ainslie  <angus.ainslie@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+
+	fix whitespce
+
+2011-07-27  Angus Ainslie  <angus.ainslie@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+
+	whitespace change
+
+2011-07-27  Angus Ainslie  <angus.ainslie@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+
+	Fix botched merge
+
+2011-07-27  Angus Ainslie  <angus.ainslie@linaro.org>
+
+	* linaro-fetch-image:
+	* linaro-fetch-image-ui:
+	* linaro-hwpack-replace:
+	* linaro_image_tools/tests/test_fetch_image.py:
+	* org.linaro.linaro-image-tools.policy:
+	* linaro-android-media-create:
+	* linaro-media-create:
+	* linaro_image_tools/cmd_runner.py:
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/chroot_utils.py:
+	* linaro_image_tools/media_create/partitions.py:
+	* linaro_image_tools/media_create/rootfs.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+	* linaro_image_tools/tests/__init__.py:
+	* linaro_image_tools/tests/test_utils.py:
+	* linaro_image_tools/utils.py:
+	* setup.py:
+	* linaro_image_tools/FetchImage.py:
+	* linaro_image_tools/fetch_image.py:
+	* linaro_image_tools/index_server.py:
+	* linaro-image-indexer:
+
+	merge in SMDKV310 support
+
+2011-07-27  Angus Ainslie  <angus.ainslie@linaro.org>
+
+	* linaro_image_tools/media_create/__init__.py:
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/partitions.py:
+
+	Add android support for the SMDKV310 board
+
+2011-07-06  Angus Ainslie  <angus.ainslie@linaro.org>
+
+	* linaro_image_tools/media_create/__init__.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Fix the BL1 image size check 
+
+2011-08-03  Deepti B. Kalakeri<deepti.kalakeri@linaro.org>
+
+	* linaro-hwpack-replace:
+
+	The l-m-c was failing to use the hwpack created by linaro-hwpack-replace as 
+	there was a problem in the hierarchy of the files it packed and it had a "./"
+	appended in every file. This patch fixes the hwpack files path.
+
+2011-08-03  Deepti B. Kalakeri<deepti.kalakeri@linaro.org>
+
+	* linaro-hwpack-replace:
+
+	Fix the way l-h-r tar the hwpack
+
+2011-08-03  Deepti B. Kalakeri<deepti.kalakeri@linaro.org>
+
+	* linaro-hwpack-replace:
+
+	hwpack-replace: Always add the new info the Packages file.
+	
+	Also only add a single staza of the new package, even if there are multiple packages to remove.
+
+2011-07-28  James Westby  <james.westby@linaro.org>
+
+	* linaro-hwpack-replace:
+
+	hwpack-replace: Always add the new info the Packages file.
+	
+	Also only add a single staza of the new package, even if there are multiple
+	packages to remove.
+
+2011-07-28  James Westby  <james.westby@linaro.org>
+
+	* linaro-android-media-create:
+	* linaro_image_tools/media_create/android_boards.py:
+
+	Fix the android-media-create support for imx.53 to create bootable images.
+
+2011-07-28  Bernhard Rosenkraenzer  <Bernhard.Rosenkranzer@linaro.org>
+
+	* linaro-android-media-create:
+
+	install_boot_loader needs to be called with the boot partition mounted
+
+2011-07-28  Bernhard Rosenkraenzer  <Bernhard.Rosenkranzer@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+
+	The iMX53 boot loader needs to be u-boot.imx, not u-boot.bin
+	Current builds have been adapted to provide the correct file.
+
+2011-07-28  Loïc Minier  <loic.minier@linaro.org>
+
+	* README:
+	* linaro_image_tools/fetch_image.py:
+	* linaro_image_tools/hwpack/builder.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+	* linaro_image_tools/tests/test_pyflakes.py:
+
+	Merge lp:~lool/linaro-image-tools/misc-syntax-fixes; fixes support for older
+	Python versions and various syntax issues reported by pyflakes; LP: #817060.
+
+2011-07-28  Loïc Minier  <loic.minier@linaro.org>
+
+	* linaro_image_tools/fetch_image.py:
+
+	Drop unused gpg_files entirely.
+
+2011-07-28  Loïc Minier  <loic.minier@linaro.org>
+
+	* README:
+
+	Mention optional installation of pyflakes to run tests in the README.
+
+2011-07-28  Loïc Minier  <loic.minier@linaro.org>
+
+	* linaro_image_tools/tests/test_pyflakes.py:
+
+	pyflakes: update line numbers in allowed warnings.
+
+2011-07-28  Loïc Minier  <loic.minier@linaro.org>
+
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Actually test executed commands in
+	TestMountedPartitionContextManager.test_umount_failure(); has the side effect
+	of fixing a pyflake unused variable warning.
+
+2011-07-28  Loïc Minier  <loic.minier@linaro.org>
+
+	* linaro_image_tools/fetch_image.py:
+
+	pyflakes: drop unused variable redownloaded_files.
+
+2011-07-28  Loïc Minier  <loic.minier@linaro.org>
+
+	* linaro_image_tools/fetch_image.py:
+
+	pyflakes: gpg_files should be self.gpg_files; this is unused in both cases, so
+	should perhaps be removed.
+
+2011-07-28  Loïc Minier  <loic.minier@linaro.org>
+
+	* linaro_image_tools/hwpack/builder.py:
+
+	Split with statement in two for compatibility with older pythons.
+
+2011-07-27  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-fetch-image-ui:
+	* linaro_image_tools/fetch_image.py:
+
+	1. fetch-image-ui now examines the return code of linaro-media-create and reports failures to the UI.
+	2. The image_size parameter to linaro-media-create wasn't being passed. This resulted in linaro-fetch-image being unable to create Ubuntu Desktop disk images, which now need to be larger than the default size of 2GB.
+
+2011-07-27  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/fetch_image.py:
+
+	Fixing half way through change check in.
+
+2011-07-27  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-fetch-image-ui:
+	* linaro_image_tools/fetch_image.py:
+
+	1. fetch-image-ui now examines the return code of linaro-media-create and reports failures to the UI.
+	2. The image_size parameter to linaro-media-create wasn't being passed. This resulted in linaro-fetch-image being unable to create Ubuntu Desktop disk images, which now need to be larger than the default size of 2GB.
+
+2011-07-26  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* setup.py:
+
+	Post-release version bump to 2011.07.1
+
+2011-07-26  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* setup.py:
+
+	Release 2011.07
+
+2011-07-26  James Westby  <james.westby@linaro.org>
+
+	* setup.py:
+
+	Add the new scripts to setup.py.
+
+2011-07-26  James Westby  <james.westby@linaro.org>
+
+	* linaro_image_tools/tests/test_fetch_image.py:
+
+	Import the new name of fetch_image in test_fetch_image.
+
+2011-07-26  Bernhard Rosenkranzer  <Bernhard.Rosenkranzer@linaro.org>
+
+	* linaro-android-media-create:
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/partitions.py:
+
+	Install the imx.53 bootloader when using Android.
+
+2011-07-26  James Westby  <james.westby@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Avoid an error if the kernel version doesn't match 2.6.*.
+
+2011-07-26  James Westby  <jw2328@jameswestby.net>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Avoid an error if the kernel version doesn't match 2.6.*.
+	
+	Assume that anything that doesn't match that pattern is greater than the
+	version needed for the workaround there.
+
+2011-07-26  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/chroot_utils.py:
+	* linaro_image_tools/media_create/partitions.py:
+	* linaro_image_tools/media_create/rootfs.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	A new contextmanager to use when you want to mount a partition, copy something
+	to it and umount when done
+
+2011-07-26  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* linaro_image_tools/media_create/partitions.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Change the partition_mounted() context manager to only log a warning when umount() fails with a SubcommandNonZeroReturnValue
+
+2011-07-25  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/chroot_utils.py:
+	* linaro_image_tools/media_create/partitions.py:
+	* linaro_image_tools/media_create/rootfs.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	A new contextmanager to use when you want to mount a partition, copy something to it and umount when done
+
+2011-07-26  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-image-indexer:
+	* linaro_image_tools/fetch_image.py:
+
+	Merging in temporary workaround for bug #816015.
+	
+	Prevent the indexing of any snapshots that aren't in http://snapshots.linaro.org/11.05-daily/ so the current logic for hwpack and OS selection will not result in finding an OS binary without a hardware pack to go with it.
+	
+	When testing I noticed that I hadn't changed the name of the library FetchImage to fetch_image (without this change the indexer wouldn't work). I also moved the BeautifulSoup import in fetch_image.py to the single function where it is used, so BeautifulSoup is not needed to be installed on the server that is creating the index.
+
+2011-07-26  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-image-indexer:
+	* linaro_image_tools/fetch_image.py:
+
+	This is a temporary workaround for bug #816015.
+	
+	Prevent the indexing of any snapshots that aren't in http://snapshots.linaro.org/11.05-daily/ so the current logic for hwpack and OS selection will not result in finding an OS binary without a hardware pack to go with it.
+	
+	When testing I noticed that I hadn't changed the name of the library FetchImage to fetch_image (without this change the indexer wouldn't work). I also moved the BeautifulSoup import in fetch_image.py to the single function where it is used, so BeautifulSoup is not needed to be installed on the server that is creating the index.
+
+2011-07-22  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* fetch_image.py:
+	* linaro-fetch-image:
+	* fetch_image_ui.py:
+	* linaro-fetch-image-ui:
+	* linaro_image_tools/FetchImage.py:
+	* linaro_image_tools/fetch_image.py:
+
+	Renamed fetch image tools in line with other applications in the linaro-image-tools repository.
+
+2011-07-22  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* fetch_image.py:
+	* linaro-fetch-image:
+	* fetch_image_ui.py:
+	* linaro-fetch-image-ui:
+	* linaro_image_tools/FetchImage.py:
+	* linaro_image_tools/fetch_image.py:
+
+	Renamed fetch image tools in line with other applications in the linaro-image-tools repository.
+
+2011-07-22  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* fetch_image_ui.py:
+	* linaro_image_tools/FetchImage.py:
+
+	After downloading files fetch_image[_ui].py checks the sha1sums and GPG signatures of the downloads.
+	
+	If a GPG signature doesn't verify a sha1sum file, the GPG signatures and sha1sums are re-downloaded. The GPG signatures are then re-checked. If the GPG signatures still don't verify all the sha1sums, we abort.
+	
+	If a sha1sum check fails, the file it is checksumming is re-downloaded. If after retrying a download then sha1sum check still fails the process is aborted.
+	
+	If if all GPG signatures are valid and sha1sum checks pass, we mark the packages as signed.
+	
+	If GPG signatures or SHA1 sums are unavailable for any package, and the above rules are met, we continue with image creation, but the packages are marked as unsigned.
+
+2011-07-22  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/FetchImage.py:
+
+	Added abort condition - if we have a GPG signature for a sha1sum file and even after re-downloading they don't match, something is clearly wrong, so abort.
+
+2011-07-22  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/FetchImage.py:
+
+	If there isn't a GPG signature for a sha1sum file, use sha1sums to validate download, just don't mark packages as signed.
+
+2011-07-22  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* fetch_image_ui.py:
+	* linaro_image_tools/FetchImage.py:
+
+	Moved downloading functions into their own class since there was a lot of shared data being pushed around in variables that could be better implemented as class variables.
+	
+	Tested working for:
+	* downloading missing files
+	* downloading sha1sum when GPG sig says it is wrong
+	* downloading GPG sig when GPG reports a problem
+	* downloading files when GPG says sha1sum is fine, but sha1sum says file is wrong
+
+2011-07-22  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* fetch_image_ui.py:
+	* linaro_image_tools/FetchImage.py:
+
+	* If a sha1sum check fails and GPG signature for sha1sum file passes, try re-downloading failed files.
+	* Fixed a bug where a build number could be chosen for a day where only the OS image was available for that build number.
+
+2011-07-22  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* linaro_image_tools/media_create/rootfs.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Make sure the root partition is umounted if something goes wrong while it's being populated.
+
+2011-07-21  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* linaro_image_tools/media_create/rootfs.py:
+
+	Update the docs of populate_rootfs() to state clearly that it uses an atexit handler and does not umount the partition directly
+
+2011-07-21  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* linaro_image_tools/media_create/rootfs.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Make sure the root partition is umounted if something goes wrong while it's being populated.
+
+2011-07-21  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* fetch_image_ui.py:
+	* linaro-media-create:
+	* linaro_image_tools/FetchImage.py:
+	* linaro_image_tools/cmd_runner.py:
+	* linaro_image_tools/tests/test_utils.py:
+	* linaro_image_tools/utils.py:
+
+	Merging in changes that makes the Fetch Image tools download SHA1 sums and GPG signatures for the hardware pack and OS binaries to allow linaro-media-create to install the packages without asking the user to approve the installation of unsigned packages.
+
+2011-07-21  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-media-create:
+	* linaro_image_tools/FetchImage.py:
+	* linaro_image_tools/tests/test_utils.py:
+	* linaro_image_tools/utils.py:
+
+	Moved checking the result of verify_file_integrity into its own function that logs the errors, which is now unit tested.
+
+2011-07-21  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/cmd_runner.py:
+
+	Added stdout and stderr to SubcommandNonZeroReturnValue.__str__
+
+2011-07-21  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-media-create:
+	* linaro_image_tools/FetchImage.py:
+	* linaro_image_tools/cmd_runner.py:
+	* linaro_image_tools/utils.py:
+
+	Added communicate function to cmd_runner that will both throw an exception if the function it is communicating with exits with a non-zero exit code and also returns stdout and stderr in the exception object.
+
+2011-07-21  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-media-create:
+	* linaro_image_tools/FetchImage.py:
+	* linaro_image_tools/tests/test_utils.py:
+
+	linaro-media-create now aborts on GPG and sha1sum check fails with nice messages.
+	Unit tests currently failing, but manual testing shows that this is working fine.
+	Moved the registration of the atexit handler so it isn't called before /tmp has been used.
+
+2011-07-20  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-media-create:
+	* linaro_image_tools/FetchImage.py:
+	* linaro_image_tools/utils.py:
+
+	* Changed utils.verify_file_integrity so it won't throw exceptions when either GPG or sha1sum fails
+	* Modified linaro-media-create to cope to new utils.verify_file_integrity return signature
+	* Modified FetchImage to use new utils.verify_file_integrity return information
+
+2011-07-20  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/FetchImage.py:
+
+	Minor tidy up of some truely ugly formatting.
+	
+	I propose that I will do a proper go at re-formatting to PEP8 standard after this has merged to avoid any problems with other merges that have gone through during development and submit that later.
+
+2011-07-19  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* fetch_image_ui.py:
+	* linaro_image_tools/FetchImage.py:
+
+	Tidying up.
+
+2011-07-19  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* fetch_image_ui.py:
+	* linaro_image_tools/FetchImage.py:
+
+	sha1sums and GPG sigs downloaded and checked.
+
+2011-07-14  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* fetch_image_ui.py:
+	* linaro_image_tools/FetchImage.py:
+
+	Now download files required for sig checking in linaro-media-create.
+	Not passing files to l-m-c yet...
+
+2011-07-21  James Westby  <jw2328@jameswestby.net>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Set default display to give decent output where EDID probing isn't supported.
+
+2011-07-19  Andy Doan  <andy.doan@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	fix some overo display issues
+	
+	1) some tobi's are unable to probe EDID for their resolution. This
+	gives a better fallback (omapfb.mode)
+	
+	2) some pallo43 boards aren't probable to determine the board
+	type. Thus we have to set defaultdisplay manually (or in EEPROM)
+	to "lcd43" to support touchscreens. In the event it is probable,
+	u-boot already sets this variable so we should honor it
+
+2011-07-20  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* org.linaro.linaro-image-tools.policy:
+
+	Adding a Policy Kit action definition file, which should live in /usr/share/polkit-1/actions so when pkexec linaro-media-create is called we have more information and less clutter in the Policy Kit auth dialog.
+
+2011-07-19  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* org.linaro.linaro-image-tools.policy:
+
+	Adding a Policy Kit action definition file, which should live in /usr/share/polkit-1/actions so when pkexec linaro-media-create is called we have more information and less clutter in the Policy Kit auth dialog.
+
+2011-07-20  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/tests/test_fetch_image.py:
+	* fetch_image_ui.py:
+	* linaro_image_tools/FetchImage.py:
+	* linaro_image_tools/tests/__init__.py:
+
+	Merge in branch where unit tests were moved out of fetch_image_ui.py into linaro_image_tools/tests/test_fetch_image.py.
+
+2011-07-19  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/tests/test_fetch_image.py:
+
+	Wrapping lines to 79 chars.
+
+2011-07-19  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/tests/test_fetch_image.py:
+	* fetch_image_ui.py:
+	* linaro_image_tools/FetchImage.py:
+	* linaro_image_tools/tests/__init__.py:
+
+	Moved unit tests out of fetch_image_ui.py into linaro_image_tools/tests/test_fetch_image.py, added tests to linaro_image_tools/tests/__init__.py and fixed bug found by actually running the test in linaro_image_tools/FetchImage.py.
+
+2011-07-18  James Westby  <james.westby@linaro.org>
+
+	* linaro-hwpack-replace:
+
+	Add linaro-hwpack-replace to replace a .deb in a hwpack with another.
+
+2011-07-18  Deepti B. Kalakeri<deepti.kalakeri@linaro.org>
+
+	* linaro-inject-debian-inhwpack:
+
+	Addressing the review comments on linaro-inject-debian-inhwpack
+
+2011-07-12  Deepti B. Kalakeri<deepti.kalakeri@linaro.org>
+
+	* linaro-inject-debian-inhwpack:
+
+	Add feature to include/replace a debian package into the given hwpack
+
+2011-07-18  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+
+	Add support for Android on the i.MX53 Quick Start Board
+
+2011-07-18  Bernhard Rosenkraenzer  <Bernhard.Rosenkranzer@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+
+	Fix syntax error
+
+2011-07-18  Bernhard Rosenkraenzer  <Bernhard.Rosenkranzer@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+
+	Enable VGA port
+
+2011-07-18  Bernhard Rosenkraenzer  <Bernhard.Rosenkranzer@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+
+	Don't hardcode ttymxc0
+
+2011-07-18  Bernhard Rosenkraenzer  <Bernhard.Rosenkranzer@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+
+	mmc_part_offset must be 0 for Android
+
+2011-07-17  Bernhard Rosenkraenzer  <Bernhard.Rosenkranzer@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+
+	Initial support for Android on Freescale i.MX53 Quick Start Board
+
+2011-07-18  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* linaro_image_tools/media_create/rootfs.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Make sure rootfs.move_contents() doesn't skip files that are not world-readable.
+
+2011-07-18  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* linaro_image_tools/media_create/rootfs.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Make sure rootfs.move_contents() doesn't skip files that are not world-readable
+
+2011-07-14  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* fetch_image_ui.py:
+	* linaro_image_tools/FetchImage.py:
+
+	Removed GUI code from the FetchImage library.
+	Updated the download status the UI gives to the user, so now it is integrated into the wizard.
+
+2011-07-14  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* fetch_image_ui.py:
+	* linaro_image_tools/FetchImage.py:
+
+	Code clean up.
+
+2011-07-14  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/FetchImage.py:
+
+	GUI download logic excludes already downloaded files from its calculations.
+
+2011-07-13  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/FetchImage.py:
+
+	Fixed lack of download status prints for CLI.
+
+2011-07-13  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* fetch_image_ui.py:
+	* linaro_image_tools/FetchImage.py:
+
+	Now have a download bar in the UI with an ETA read out and current download speed.
+
+2011-07-13  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* fetch_image_ui.py:
+	* linaro_image_tools/FetchImage.py:
+
+	Download files now done by list. Bytes downloaded sent back to UI that now tracks percentage complete.
+
+2011-07-12  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* fetch_image_ui.py:
+	* linaro_image_tools/FetchImage.py:
+
+	GUI code removed from common library. Now GUI runs all downloads and the linaro-media-create call in a separate thread and passes messages in the event queue back to the GUI.
+	
+	Seemed reasonable to implement changes to the download progress now, so not using standard progress bar at the moment - just have text info in GUI.
+
+2011-07-12  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* fetch_image_ui.py:
+	* linaro_image_tools/FetchImage.py:
+
+	UI code out of library, but need to run download in separate thread to keep UI responsive.
+
+2011-07-11  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* fetch_image_ui.py:
+	* linaro_image_tools/FetchImage.py:
+
+	Moved Wizard code out of library. Download status bars to go.
+
+2011-07-08  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/FetchImage.py:
+
+	Split out linaro-media-create command generation into separate function.
+
+2011-07-07  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/FetchImage.py:
+
+	Moved download function out of create_image.
+
+2011-07-07  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/index_server.py:
+	* linaro-image-indexer:
+
+	Removed status prints from linaro_image_tools/index_server.py and renamed it to linaro-image-indexer
+
+2011-07-07  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* index_server.py:
+	* linaro-image-indexer:
+
+	Renamed index_server.py to the less generic linaro-image-indexer
+
+2011-07-07  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/index_server.py:
+	* index_server.py:
+
+	Restored absolute path change (rev 369) and moved file to location where it will work.
+
+2011-07-07  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/index_server.py:
+
+	Removed status prints
+	Reverted absolute path change (rev 369). Perhaps I am missing something, but the script wouldn't run.
+
+2011-07-07  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* linaro_image_tools/fetch_image_settings.yaml:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add support for Origen board
+
+2011-07-07  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* fetch_image.py:
+	* fetch_image_ui.py:
+
+	merge trunk
+
+2011-07-05  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Fix the asserts in install_samsung_boot_loader(), which were broken and thus making it impossible to generate images for smvdk310 and origen
+
+2011-07-05  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Fix the call to install_samsung_boot_loader() in SamsungConfig._make_boot_files()
+
+2011-07-05  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Remove some unneeded arguments from methods of Samsung board configs
+
+2011-07-04  Angus Ainslie  <angus.ainslie@linaro.org>
+
+	* linaro_image_tools/fetch_image_settings.yaml:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add suport for the Samsung Origen board
+
+2011-07-07  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* fetch_image.py:
+	* fetch_image_ui.py:
+
+	Merging fetch_image_ui.py to trunk - a GUI that guides the user through the process of identifying their hardware and what Linaro software they would like to run on it, downloading the required files (hardware packs and OS binaries) and generating a file system using linaro-media-create.
+
+2011-06-17  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* fetch_image_ui.py:
+
+	Initial merge request of fetch_image_ui.py - a GUI with similar functionality to fetch_image.py.
+	
+	The GUI guides the user through the process of creating an image for their ARM hardware. Files are pulled as required from release.linaro.org and snapshots.linaro.org and combined using linaro-media-create.
+
+2011-06-17  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* fetch_image.py:
+
+	Merging in fetch_image.py
+	
+	This is a command line client that will download the required files from release.linaro.org and snapshots.linaro.org to build a specified OS image for your hardware, for example:
+	
+	fetch_image.py -w panda -a linaro-n -i nano -b final -p panda -t ~/Desktop/panda.bin
+	
+	This will create a nano image for a panda board based on the final linaro-n release from release.linaro.org and place it on the users desktop.
+
+2011-06-17  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* fetch_image.py:
+
+	Modified according to changes proposed by code review.
+
+2011-06-15  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* fetch_image.py:
+
+	Adding the initial revision of the Fetch Image CLI tool.
+
+2011-07-01  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+	* linaro_image_tools/hwpack/tests/test_hardwarepack.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add metadata fields boot_min_size, root_min_size and loader_min_size to linaro-media-create.
+
+2011-06-29  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add metadata fields boot_min_size, root_min_size and loader_min_size to linaro-media-create.
+
+2011-06-29  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/tests/test_hardwarepack.py:
+
+	Add tests for metadata output.
+
+2011-06-29  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+
+	Add boot_min_size, root_min_size and loader_min_size fields to hwpack-create.
+
+2011-07-01  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Use the hwpack u-boot file for the SMDKV310 board.
+	
+	To make this change consistent with the MX5 board, also move the Samsung specific methods into SMDKV310Config.
+
+2011-06-28  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add asserts for file sizes according to comments.
+
+2011-06-28  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Use uboot file from hwpack for SMDKV310Config.
+
+2011-06-28  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Move SMDKV310 specific methods into SMDKV310Config class.
+
+2011-07-01  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-hwpack-install:
+	* linaro-media-create:
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add support for first batch of hwpack 2.0 fields to linaro-media-create.
+	
+	This adds support for kernel_addr, initrd_addr, load_addr, u-boot (path 
+	to uboot binary in the hwpack), serial_tty and partition_layout. 
+
+2011-07-01  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Only clear metadata defaults if no 1.0 hwpacks have been passed.
+
+2011-06-29  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Allow mixing hwpack formats and consider metadata format to be the same as the highest format version encountered.
+
+2011-06-29  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+
+	Change test to use variable for matching text.
+
+2011-06-28  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Clean up and minor fixes.
+
+2011-06-28  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Delay setting extra_serial_opts and live_serial_opts for all boards to make sure that serial_tty is not read from class defaults for V2 format.
+
+2011-06-28  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-media-create:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Support multiple hwpacks. This makes sure that all hwpacks are of the same format version and that metadata fields are not specified in more than one of the hwpacks (except name, maintainter and a few more).
+
+2011-06-28  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Also avoid overriding fat_size.
+
+2011-06-28  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+	* setup.py:
+
+	Merge trunk.
+
+2011-06-28  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Use hwpack uboot file for Mx5Config.
+
+2011-06-28  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add get_file() to HardwarepackHandler and use it in populate_boot().
+
+2011-06-28  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add tests for HardwarepackHandler.
+
+2011-06-27  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Assert that metadata fields have not already been set to prevent overriding data.
+
+2011-06-23  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Restore an empty line.
+
+2011-06-23  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Format version comes from the FORMAT file.
+
+2011-06-23  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-hwpack-install:
+
+	Add 2.0 as supported format in hwpack-install.
+
+2011-06-23  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add unpacking and copying of uboot binary from hwpack.
+
+2011-06-23  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+
+	Enable bootfs16_rootfs partition layout in hwpack-create.
+
+2011-06-23  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-media-create:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add support for new metadata fields.
+
+2011-07-01  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/index_server.py:
+
+	Use absolute imports for hardwarepack_format and FetchImage.
+
+2011-06-29  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/index_server.py:
+
+	Fix the FetchImage import.
+
+2011-06-28  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/index_server.py:
+
+	Use absolute imports to fix problem with setup.py.
+
+2011-07-01  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-android-media-create:
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/partitions.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add support for the Snowball board to linaro-android-media-create, written by Ola Borgelin. Add tests for Snowball code, written by Hans Odeberg and Markus Andersson.
+
+2011-07-01  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Minor clean up.
+
+2011-06-30  Markus Andersson  <markus.m.andersson@stericsson.com>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Fixed media_create test for 64-bit system and some test parameters more understandable. 
+
+2011-06-30  Ola Borgelin  <ola.borgelin@stericsson.com>
+
+	* linaro-android-media-create:
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Added extra_part parameter to get_sfdisk_cmd in android_boards and moved and renamed populate_startup_partition to populate_raw_partition  
+
+2011-06-29  Ola Borgelin  <ola.borgelin@stericsson.com>
+
+	* linaro-android-media-create:
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/partitions.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Snowball Android image support and tests
+
+2011-06-29  James Westby  <james.westby@linaro.org>
+
+	* setup.py:
+
+	Post-release version bump to 2011.06-1.1
+
+2011-06-29  James Westby  <james.westby@linaro.org>
+
+	* setup.py:
+
+	Release 2011.06-1
+
+2011-06-29  James Westby  <james.westby@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Use the lt- variant of the omap kernel.
+
+2011-06-23  James Westby  <james.westby@linaro.org>
+
+	* setup.py:
+
+	Post-release version bump to 2011.06.1
+
+2011-06-23  James Westby  <james.westby@linaro.org>
+
+	* setup.py:
+
+	Release 2011.06
+
+2011-06-23  James Westby  <james.westby@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Use the new name for the SPL for the smdkv310 if the old one isn't present.
+
+2011-06-22  Angus Ainslie  <angus.ainslie@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Check for old SPL file and if it doesn't exist check for new SPL. If 
+	neither file exists raise an exception.
+
+2011-06-23  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Set omapfb.vram=0:24M,1:24M for Android on Panda.
+
+2011-06-23  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add a test for Android Panda extra_boot_args.
+
+2011-06-23  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Duplicate extra_boot_args_options to android_boards.AndroidPandaConfig.
+
+2011-06-22  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Change omapfb.vram=0:24M to omapfb.vram=0:24M,1:24M to enable SGX on TI's kernel.
+
+2011-06-22  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-media-create:
+	* linaro_image_tools/cmd_runner.py:
+	* linaro_image_tools/tests/test_pyflakes.py:
+	* linaro_image_tools/tests/test_utils.py:
+	* linaro_image_tools/utils.py:
+
+	Merge lp:~mabac/linaro-image-tools/chdir-for-hashverify; use location of hash file as working dir when verifying sha1sums of hwpacks.
+
+2011-06-21  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/tests/test_pyflakes.py:
+
+	Adjust pyflakes test to reflect that a source line has been added.
+
+2011-06-21  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-media-create:
+	* linaro_image_tools/tests/test_utils.py:
+	* linaro_image_tools/utils.py:
+
+	Add basic tests for the file verification.
+
+2011-06-21  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-media-create:
+	* linaro_image_tools/utils.py:
+
+	Move file verification from main into a utils function.
+
+2011-06-21  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-media-create:
+	* linaro_image_tools/cmd_runner.py:
+
+	Add cwd parameter to cmd_runner.run() and use it for the sha1 verification in linaro-media-create.
+
+2011-06-21  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/hardwarepack_format.py:
+	* linaro_image_tools/hwpack/builder.py:
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+	* linaro_image_tools/hwpack/packages.py:
+	* linaro_image_tools/hwpack/tests/test_builder.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+	* linaro_image_tools/hwpack/tests/test_hardwarepack.py:
+	* linaro_image_tools/tests/fixtures.py:
+
+	Merge lp:~mabac/linaro-image-tools/hwpacks-v2-hwpack-create; add support for hwpacks V2 format to linaro-hwpack-create.
+
+2011-06-20  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+	* linaro_image_tools/hwpack/tests/test_builder.py:
+
+	Clean up some ugly formatting.
+
+2011-06-20  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/builder.py:
+	* linaro_image_tools/hwpack/packages.py:
+	* linaro_image_tools/hwpack/tests/test_builder.py:
+
+	Add tests for find_fetched_package.
+
+2011-06-20  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/packages.py:
+
+	Store full path to package when fetched using apt.
+
+2011-06-20  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/builder.py:
+
+	Break apart function that had two purposes.
+
+2011-06-20  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/tests/test_builder.py:
+	* linaro_image_tools/tests/fixtures.py:
+
+	Add option to MockCmdRunnerPopenFixture to disable child finished assertion which is needed to be able to pipe between two cmd_runners. Add stdin property to MockCmdRunnerPopenFixture. Add test_unpack_package test.
+
+2011-06-20  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/builder.py:
+
+	Remove --wildcards from tar command and add comment.
+
+2011-06-17  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/tests/test_script.py:
+
+	Restore an empty line.
+
+2011-06-17  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/hardwarepack.py:
+	* linaro_image_tools/hwpack/tests/test_hardwarepack.py:
+
+	Add metadata as string tests.
+
+2011-06-17  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/tests/test_builder.py:
+
+	Add tests for PackageUnpacker.
+
+2011-06-17  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+
+	Clean up a little.
+
+2011-06-17  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/hardwarepack_format.py:
+	* linaro_image_tools/hwpack/builder.py:
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+	* linaro_image_tools/hwpack/tests/test_hardwarepack.py:
+	* linaro_image_tools/hwpack/tests/test_script.py:
+
+	Use HardwarePackFormat objects instead of format strings.
+
+2011-06-17  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/builder.py:
+	* linaro_image_tools/hwpack/packages.py:
+
+	Add PackageFetcher.get_package_path().
+
+2011-06-17  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/builder.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+
+	Cleanup after review.
+
+2011-06-16  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/builder.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+
+	Break out u-boot code into separate method.
+
+2011-06-16  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+
+	Compare floats instead of format strings.
+
+2011-06-16  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/hardwarepack.py:
+
+	Remove not yet supported config fields.
+
+2011-06-16  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/builder.py:
+	* linaro_image_tools/hwpack/config.py:
+
+	Break out regexp matching to separate method.
+
+2011-06-16  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/builder.py:
+
+	Move package unpacking and tempfile handling to context manager object.
+
+2011-06-13  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/builder.py:
+
+	Clean up tempdir atexit and verify that the u-boot package actually was unpacked.
+
+2011-06-13  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+
+	Add test and validation for mmc_id.
+
+2011-06-13  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+
+	Add test for partition_layout.
+
+2011-06-13  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+
+	Add tests for network interface fields. Any ideas about naming restrictions for nw interfaces?
+
+2011-06-13  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+
+	Add tests and validation for kernel_addr, initrd_addr and load_addr.
+
+2011-06-13  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+
+	Add test for serial_tty.
+
+2011-06-13  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+
+	Add tests and validation for format, u-boot-package and u-boot-file.
+
+2011-06-10  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/hardwarepack.py:
+	* linaro_image_tools/hwpack/tests/test_hardwarepack.py:
+
+	Make sure that 2.0 code only is executed when format is at least 2.0. Fix tests for new function signatures.
+
+2011-06-09  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+
+	Only validate new fields if format is at least 2.0.
+
+2011-06-09  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/builder.py:
+
+	Don't unpack the u-boot package if 2.0 format is not used.
+
+2011-06-07  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/builder.py:
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+
+	Unpack only explicitly specified file from u-boot package. Extract function to add one file from a package to the hwpack in preparation for supporting similar files.
+
+2011-06-07  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+
+	Remove hwpack-create board field.
+
+2011-06-01  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/builder.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+
+	Get u-boot package path from PackageFetcher.
+
+2011-06-01  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/hardwarepack.py:
+
+	Add new metadata fields from wiki spec with notes about implementation.
+
+2011-06-01  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+
+	Remove placeholders for options that are not being worked on yet.
+
+2011-06-01  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/builder.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+
+	Add support for adding plain files to hwpack and add filenames to metadata. Also use this for file unpacked from u-boot package.
+
+2011-05-31  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/builder.py:
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+
+	Get name of u-boot package from hwpack file, download the package but do not add to hwpack.
+
+2011-05-31  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/builder.py:
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+
+	Get format from config file. 1.0 will be default and require hwpacks to specify format from now on.
+
+2011-05-31  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/tests/test_pyflakes.py:
+	* do-release:
+	* linaro-hwpack-create:
+	* linaro-media-create:
+	* linaro_image_tools/hwpack/packages.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+	* linaro_image_tools/hwpack/tests/test_packages.py:
+	* linaro_image_tools/hwpack/tests/test_script.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/partitions.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+	* linaro_image_tools/tests/__init__.py:
+	* linaro_image_tools/utils.py:
+	* setup.py:
+
+	Merge trunk.
+
+2011-05-06  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/config.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+
+	Extend Config to validate and provide new options.
+
+2011-05-06  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/hardwarepack.py:
+
+	Add new options to metadata file.
+
+2011-05-06  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/hardwarepack.py:
+
+	Extend Metadata object iwith new options.
+
+2011-05-05  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/hwpack/builder.py:
+	* linaro_image_tools/hwpack/hardwarepack.py:
+
+	Make version option make it into the FORMAT file in hwpack.
+
+2011-06-17  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/FetchImage.py:
+	* linaro_image_tools/fetch_image_settings.yaml:
+	* linaro_image_tools/index_server.py:
+
+	Merging in index_server.py and supporting files.
+
+2011-06-17  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/fetch_image_settings.yaml:
+	* linaro_image_tools/FetchImage.py:
+	* linaro_image_tools/index_server.py:
+
+	Minor code clean up and adding fetch_image_settings.yaml
+
+2011-06-17  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/FetchImage.py:
+
+	Removed trailing whitespace.
+
+2011-06-17  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/FetchImage.py:
+	* linaro_image_tools/index_server.py:
+
+	Many changes recommended by code review.
+
+2011-06-15  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/FetchImage.py:
+	* linaro_image_tools/index_server.py:
+
+	Some major changes to FetchImage.py since the last merge proposal, all in support of development on lp:~dooferlad/linaro-image-tools/my_dev
+	
+	Minor changes to index_server.py, mostly to work around the appearance of an unexpected (and out of place) directory in the index path.
+
+2011-06-15  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/tests/test_pyflakes.py:
+	* README:
+	* do-release:
+	* linaro-android-media-create:
+	* linaro-hwpack-create:
+	* linaro-media-create:
+	* linaro_image_tools/hwpack/packages.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+	* linaro_image_tools/hwpack/tests/test_packages.py:
+	* linaro_image_tools/hwpack/tests/test_script.py:
+	* linaro_image_tools/media_create/__init__.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/check_device.py:
+	* linaro_image_tools/media_create/chroot_utils.py:
+	* linaro_image_tools/media_create/partitions.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+	* linaro_image_tools/tests/__init__.py:
+	* linaro_image_tools/utils.py:
+	* setup.py:
+
+	Merge from trunk
+
+2011-05-05  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/FetchImage.py:
+	* linaro_image_tools/index_server.py:
+
+	Server indexer updated to scan local file system
+
+2011-04-28  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/FetchImage.py:
+	* linaro_image_tools/index_server.py:
+
+	Merge of files for generating the server index
+
+2011-06-17  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-media-create:
+	* linaro_image_tools/media_create/__init__.py:
+	* linaro_image_tools/media_create/check_device.py:
+
+	Add option --nocheck-mmc to linaro-media-create
+
+2011-06-17  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/media_create/check_device.py:
+
+	Provided sensible default to confirm_device_selection_and_ensure_it_is_ready parameter yes_to_mmc_selection
+
+2011-06-17  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-media-create:
+	* linaro_image_tools/media_create/__init__.py:
+
+	Updated variable name to match CLI option: nocheck_mmc
+
+2011-06-17  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-media-create:
+	* linaro_image_tools/media_create/__init__.py:
+
+	* Changed command line option from --yes-to-mmc-selection to --nocheck-mmc
+	* Wrapped lines to 79 chars.
+
+2011-06-15  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-media-create:
+	* linaro_image_tools/media_create/__init__.py:
+	* linaro_image_tools/media_create/check_device.py:
+
+	Add command line option to force yes to the "Are you 100% sure on selecting [mmc]" question.
+
+2011-06-14  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Merge lp:~mabac/linaro-image-tools/fewer-magic-numbers-in-tests; refactor partitioning tests.
+
+2011-06-10  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Change test_get_boot_and_root_loopback_devices() and test_calculate_partition_size_and_offset() to use data stored in a variable instead of unconnected magic numbers.
+
+2011-06-14  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-android-media-create:
+	* linaro_image_tools/media_create/__init__.py:
+	* linaro_image_tools/media_create/partitions.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Merge lp:~mabac/linaro-image-tools/image-support-for-android; Add --image_file option to linaro-android-media-create as requested in lp:787972
+
+2011-06-14  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Use smaller partitions for testing.
+
+2011-06-13  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Improve comments in tests.
+
+2011-06-10  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Limit the data list to < 80 chars, didn't improve readability though.
+
+2011-06-10  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Clean up tests and put partition size and offsets in variable, after review comments. Thanks for the tip, Guilherme.
+
+2011-06-09  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add test for get_android_loopback_devices().
+
+2011-06-08  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add test for calculate_android_partition_size_and_offset.
+
+2011-05-31  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/partitions.py:
+
+	Ignore the extended partition info.
+
+2011-05-30  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/partitions.py:
+
+	Get partition info for Android image.
+
+2011-05-30  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/partitions.py:
+
+	Sector size as constant.
+
+2011-05-30  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/partitions.py:
+
+	Replace 512 with SECTOR_SIZE constant.
+
+2011-05-30  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+	* setup.py:
+
+	Merge trunk.
+
+2011-05-26  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/partitions.py:
+
+	Assert that all partitions are found.
+
+2011-05-26  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/partitions.py:
+
+	Use loopback devices for image file.
+
+2011-05-26  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-android-media-create:
+	* linaro_image_tools/media_create/__init__.py:
+	* linaro_image_tools/media_create/partitions.py:
+
+	Add --image_size option too.
+
+2011-05-26  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-android-media-create:
+
+	Change --no-part check to match command line options.
+
+2011-05-26  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/__init__.py:
+	* linaro_image_tools/media_create/partitions.py:
+
+	Add --image_file option to linaro-android-media-create
+
+2011-05-26  James Westby  <james.westby@linaro.org>
+
+	* setup.py:
+
+	Post-release version bump to 0.4.8.1
+
+2011-05-26  James Westby  <james.westby@linaro.org>
+
+	* setup.py:
+
+	Release 0.4.8
+
+2011-05-26  James Westby  <james.westby@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Quote the setenv arguments in boot.scr to avoid u-boot limits.
+
+2011-05-26  James Westby  <james.westby@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Use single quotes to avoid escaping. Thanks Guilherme.
+
+2011-05-26  James Westby  <james.westby@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add a test for the quoting behaviour.
+
+2011-05-26  James Westby  <james.westby@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Use double quotes around setenv arguments.
+
+2011-05-25  James Westby  <james.westby@linaro.org>
+
+	* setup.py:
+
+	Post-release version bump to 0.4.7.1
+
+2011-05-25  James Westby  <james.westby@linaro.org>
+
+	* setup.py:
+
+	Release 0.4.7
+
+2011-05-25  James Westby  <james.westby@linaro.org>
+
+	* linaro_image_tools/hwpack/tests/test_script.py:
+
+	Drop the unused doctest import.
+
+2011-05-25  James Westby  <james.westby@linaro.org>
+
+	* linaro-hwpack-create:
+	* linaro_image_tools/hwpack/tests/test_script.py:
+
+	Fix the logging output in linaro-hwpack-create.
+
+2011-05-25  James Westby  <james.westby@linaro.org>
+
+	* linaro_image_tools/hwpack/tests/test_script.py:
+
+	Add a test for the log output.
+
+2011-05-25  James Westby  <james.westby@linaro.org>
+
+	* linaro-hwpack-create:
+
+	Fix the logging output from linaro-hwpack-create.
+
+2011-05-25  James Westby  <james.westby@linaro.org>
+
+	* linaro_image_tools/hwpack/packages.py:
+	* linaro_image_tools/hwpack/tests/test_packages.py:
+
+	Allow hwpacks to remove packages from the assume-installed set.
+
+2011-05-25  James Westby  <james.westby@linaro.org>
+
+	* linaro_image_tools/hwpack/packages.py:
+	* linaro_image_tools/hwpack/tests/test_packages.py:
+
+	Cleanups from review. Thanks Guilherme.
+
+2011-05-25  James Westby  <james.westby@linaro.org>
+
+	* linaro_image_tools/hwpack/packages.py:
+	* linaro_image_tools/hwpack/tests/test_packages.py:
+
+	Allow packages in hwpacks to remove packages from the rootfs.
+
+2011-05-24  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Merge lp:~rsalveti/linaro-image-tools/beagle-mpurate; Add mpurate=${mpurate} kernel boot argument for Beagle Board.
+
+2011-05-23  Ricardo Salveti de Araujo  <ricardo.salveti@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	linaro_image_tools/media_create/boards.py: adding mpurate=${mpurate} argument for beagle
+
+2011-05-23  Mattias Backman  <mattias.backman@linaro.org>
+
+	* do-release:
+
+	Make do-release script remove possibly remaining .testrepository dir.
+
+2011-05-23  Mattias Backman  <mattias.backman@linaro.org>
+
+	* setup.py:
+
+	Post-release version bump to 0.4.6.1
+
+2011-05-23  Mattias Backman  <mattias.backman@linaro.org>
+
+	* setup.py:
+
+	Release 0.4.6
+
+2011-05-23  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Merge lp:~doanac/linaro-image-tools/overo-updates; clean up no longer needed video settings for Overo.
+
+2011-04-21  Andy Doan  <andy.doan@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	allow expansion of variables in boot args
+	
+	The boot args were quoted, so u-boot wasn't expanding the
+	variables properly.
+	
+	This also changes Overo to pull in the MPU rate from u-boot. We
+	want to eventually let the kernel determine this. The support is
+	not yet there for it though
+
+2011-04-20  Andy Doan  <andy.doan@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	set VRAM value for Overo
+	
+	From Linux kernel documentation:
+	"VRFB rotation requires much more memory than non-rotated framebuffer"
+	
+	I'm updating this to be 12M which is the default value used in
+	u-boot's mmcboot logic for this
+
+2011-04-20  Andy Doan  <andy.doan@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	revert commit 289. There kernel now has OMAP support for
+	EDID which can probe for the best resolution to use.
+
+2011-05-23  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Merge lp:~asac/linaro-image-tools/panda-display-vram-24m; allocate more memory for Panda 1080p resolution.
+
+2011-05-23  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Change test to match new mem values. Remove quotes to be consistent with Beagle and Overo configs.
+
+2011-05-22  Alexander Sack  <asac@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	linaro_image_tools/media_create/boards.py: allocate 48M vram and 0:24M for first screen for 1080p resolution
+
+2011-05-20  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-media-create:
+	* linaro_image_tools/media_create/boards.py:
+
+	Make sure that the --mmc option cannot be used for the snowball_emmc board config, as that usage would be confusing.
+
+2011-05-19  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-media-create:
+	* linaro_image_tools/media_create/boards.py:
+
+	Block --mm option for SnowballEmmcConfig since this config does not make sense to write to an mmc.
+
+2011-05-20  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Initial support for ST-Ericsson Snowball based on an implementation by Tony Mansson and Hans Odeberg.
+	
+	This adds the BoardConfig classes SnowballSdConfig and SnowballEmmcConfig. Start files for the Snowball boot loader partition is contained in the hwpack along with a startfiles.cfg files which describes them.
+
+2011-05-20  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Remove Snowball_Emmc test which is not working.
+
+2011-05-20  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Assert that toc file is not larger than the size reserved for it. Add comment to remember that more sanity checks are needed.
+
+2011-05-20  Mattias Backman  <mattias.backman@linaro.org>
+
+	* snowball_toc.txt:
+	* linaro_image_tools/media_create/boards.py:
+
+	Change name of config file to startupfiles.cfg per Tony's suggestion. Remove the example file and assume that the config file unpacks to the same location as startup files.
+
+2011-05-19  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Change SnowballSdcardConfig to SnowballSdConfig and change SnowballImage to SnowballEmmcConfig.
+
+2011-05-19  Mattias Backman  <mattias.backman@linaro.org>
+
+	* snowball_toc.txt:
+	* linaro_image_tools/media_create/boards.py:
+
+	Magic data in external file.
+
+2011-05-19  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* snowball_toc.txt:
+
+	Explicitly specify all toc entries in data file.
+
+2011-05-18  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Break a long line.
+
+2011-05-18  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Merge toc field names change.
+
+2011-05-18  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Move startup files config file name into constant.
+
+2011-05-16  Mattias Backman  <mattias.backman@linaro.org>
+
+	* snowball_toc.txt:
+
+	Temp add the toc text file for convenience.
+
+2011-05-16  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Break out toc data into file.
+
+2011-05-18  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Make parameters in create_toc match the names of TOC fields according to the spec.
+
+2011-05-16  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Use tempfile for temporary toc file.
+
+2011-05-16  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Removed some unused item in install_snowball_boot_loader.
+
+2011-05-16  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Add comment to explain format string. Note spec and code seems to not match.
+
+2011-05-16  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Remove variable item which was only temporary storage.
+
+2011-05-16  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Remove unused tuple item 'sz'.
+
+2011-05-16  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Change iteration in get_file_info a little.
+
+2011-05-16  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Move functions install_snowball_boot_loader, create_toc and get_file_info into SnowballImageConfig since they are specific to Snowball.
+
+2011-05-16  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Rename LOADER_START_S to SNOWBALL_LOADER_START_S
+
+2011-05-13  Tony Mansson  <tony.mansson@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Initial Snowball support
+
+2011-05-11  Loïc Minier  <lool@dooz.org>
+
+	* linaro_image_tools/tests/test_pyflakes.py:
+	* linaro_image_tools/hwpack/packages.py:
+	* linaro_image_tools/hwpack/tests/test_config.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+	* linaro_image_tools/tests/__init__.py:
+	* linaro_image_tools/utils.py:
+
+	Merge lp:~lool/linaro-image-tools/pyflakes-fixes-of-the-day; fixes some
+	warnings reported by pyflakes and run pyflakes as part of the testsuite if
+	available.
+
+2011-05-10  Loïc Minier  <loic.minier@linaro.org>
+
+	* linaro_image_tools/tests/test_pyflakes.py:
+	* linaro_image_tools/tests/__init__.py:
+
+	Run pyflakes if it's installed and the tests are being run from a source tree.
+
+2011-05-10  Loïc Minier  <lool@dooz.org>
+
+	* linaro_image_tools/utils.py:
+
+	Break a new has_command() out of ensure_command().
+
+2011-05-10  Loïc Minier  <lool@dooz.org>
+
+	* linaro_image_tools/hwpack/tests/test_config.py:
+
+	Assert that the created config isn't None; has the nice side effect of
+	silencing a pyflakes warning.
+
+2011-05-10  Loïc Minier  <lool@dooz.org>
+
+	* linaro_image_tools/hwpack/packages.py:
+
+	Remove unused proc variable.
+
+2011-05-10  Loïc Minier  <lool@dooz.org>
+
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add an assert to a test which has the nice side effect of silencing a pyflakes
+	warning.
+
+2011-05-06  Loïc Minier  <loic.minier@linaro.org>
+
+	* linaro_image_tools/media_create/partitions.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Merge lp:~lool/linaro-image-tools/no-size-suffix; fixes support for
+	--image_size without an unit suffix.
+
+2011-05-06  Loïc Minier  <lool@dooz.org>
+
+	* linaro_image_tools/media_create/partitions.py:
+
+	Use nicer construct to test if a char is a digit.
+
+2011-05-06  Loïc Minier  <lool@dooz.org>
+
+	* linaro_image_tools/media_create/partitions.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add support for --image_size without any unit; LP: #778426.
+
+2011-05-05  Loïc Minier  <loic.minier@linaro.org>
+
+	* linaro-media-create:
+
+	Fix leftover "!= 0:"; thanks Matt Waddel; LP: #777938.
+
+2011-05-02  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-media-create:
+	* linaro_image_tools/media_create/chroot_utils.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Install hwpack with --force-yes if hwpack integrity has been verified.
+
+2011-05-02  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-media-create:
+
+	Remove message and exit that can never be reached.
+
+2011-04-29  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/chroot_utils.py:
+
+	Use os.path.basename() instead of split().
+
+2011-04-28  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-media-create:
+	* linaro_image_tools/media_create/chroot_utils.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Set hwpack-force-yes for hwpacks with verified signature.
+
+2011-04-28  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-media-create:
+
+	Use communicate() when checking sha1 hashes to get command output.
+
+2011-05-02  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/check_device.py:
+
+	Print the list of devices sorted alpabetically.
+
+2011-04-28  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/check_device.py:
+
+	Sort devices before printing them.
+
+2011-04-29  Loïc Minier  <lool@dooz.org>
+
+	* README:
+	* linaro-android-media-create:
+	* linaro-media-create:
+	* linaro_image_tools/media_create/partitions.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Merge lp:~lool/linaro-image-tools/drop-qemu-img; removes the need for qemu-img
+	from the qemu-kvm package (uses dd instead); LP: #772264.
+
+2011-04-29  Loïc Minier  <loic.minier@linaro.org>
+
+	* README:
+
+	Drop mention of qemu-kvm in required packages in the README; rename
+	qemu-kvm-extras-static to qemu-user-static and kill obsolete links.
+
+2011-04-29  Loïc Minier  <loic.minier@linaro.org>
+
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Convert the testsuite to also use dd instead of qemu-img.
+
+2011-04-29  Loïc Minier  <loic.minier@linaro.org>
+
+	* linaro_image_tools/media_create/partitions.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Fix missing count=0 in dd calls and a mention of qemu-img in the testsuite's
+	comments.
+
+2011-04-29  Loïc Minier  <loic.minier@linaro.org>
+
+	* linaro-android-media-create:
+	* linaro-media-create:
+
+	Don't require qemu-img any longer; LP: 772264.
+
+2011-04-29  Loïc Minier  <loic.minier@linaro.org>
+
+	* linaro_image_tools/media_create/partitions.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Use dd instead of qemu-img to create sparse files.
+
+2011-04-27  Mattias Backman  <mattias.backman@linaro.org>
+
+	* setup.py:
+
+	Post-release version bump to 0.4.5.1
+
 2011-04-27  Mattias Backman  <mattias.backman@linaro.org>
 
 	* setup.py:

@@ -27,6 +27,7 @@ from testtools.matchers import Equals
 
 from linaro_image_tools.hwpack.builder import (
     ConfigFileMissing,
+    PackageUnpacker,
     HardwarePackBuilder,
     logger as builder_logger,
     )
@@ -50,6 +51,10 @@ from linaro_image_tools.hwpack.testing import (
     Not,
     )
 from linaro_image_tools.testing import TestCaseWithFixtures
+from linaro_image_tools.tests.fixtures import (
+    MockSomethingFixture,
+    MockCmdRunnerPopenFixture,
+    )
 
 
 class ConfigFileMissingTests(TestCase):
@@ -59,11 +64,67 @@ class ConfigFileMissingTests(TestCase):
         self.assertEqual("No such config file: 'path'", str(exc))
 
 
+class PackageUnpackerTests(TestCaseWithFixtures):
+
+    def test_creates_tempdir(self):
+        with PackageUnpacker() as package_unpacker:
+            self.assertTrue(os.path.exists(package_unpacker.tempdir))
+
+    def test_tempfiles_are_removed(self):
+        tempdir = None
+        with PackageUnpacker() as package_unpacker:
+            tempdir = package_unpacker.tempdir
+        self.assertFalse(os.path.exists(tempdir))
+
+    def test_unpack_package(self):
+        fixture = MockCmdRunnerPopenFixture(assert_child_finished=False)
+        self.useFixture(fixture)
+        package_file_name = "package-to-unpack"
+        with PackageUnpacker() as package_unpacker:
+            package_unpacker.unpack_package(package_file_name)
+            package_dir = package_unpacker.tempdir
+        self.assertEquals(
+            ["tar -C %s -xf -" % package_dir,
+             "dpkg --fsys-tarfile %s" % package_file_name],
+            fixture.mock.commands_executed)
+
+    def test_get_file_returns_tempfile(self):
+        package = 'package'
+        file = 'dummyfile'
+        with PackageUnpacker() as package_unpacker:
+            self.useFixture(MockSomethingFixture(
+                    package_unpacker, 'unpack_package', lambda package: None))
+            self.useFixture(MockSomethingFixture(
+                    os.path, 'exists', lambda file: True))
+            tempfile = package_unpacker.get_file(package, file)
+            self.assertEquals(tempfile,
+                              os.path.join(package_unpacker.tempdir, file))
+
+    def test_get_file_raises(self):
+        package = 'package'
+        file = 'dummyfile'
+        with PackageUnpacker() as package_unpacker:
+            self.useFixture(MockSomethingFixture(
+                    package_unpacker, 'unpack_package', lambda package: None))
+            self.assertRaises(AssertionError, package_unpacker.get_file,
+                              package, file)
+
+
 class HardwarePackBuilderTests(TestCaseWithFixtures):
 
     def setUp(self):
         super(HardwarePackBuilderTests, self).setUp()
         self.useFixture(ChdirToTempdirFixture())
+        self.extra_config={'format': '2.0', 'u-boot-package': 'wanted-package',
+                          'u-boot-file': 'wanted-file', 
+                          'partition_layout': 'bootfs_rootfs',
+                          'x_loader_package': 'x-loader-omap4-panda',
+                          'x_loader_file': 'usr/lib/x-loader/omap4430panda/MLO',
+                          'kernel_file': 'boot/vmlinuz-3.0.0-1002-linaro-omap',
+                          'initrd_file': 'boot/initrd.img-3.0.0-1002-linaro-omap',
+                          'boot_script': 'boot.scr',
+                          'mmc_id': '0:1',
+                          'u_boot_in_boot_part': 'no'}
 
     def test_raises_on_missing_configuration(self):
         e = self.assertRaises(
@@ -94,6 +155,36 @@ class HardwarePackBuilderTests(TestCaseWithFixtures):
             config_text += 'sources-entry=%s\n' % source
         config = self.useFixture(ConfigFileFixture(config_text))
         return Metadata(hwpack_name, hwpack_version, architecture), config
+
+    def test_find_fetched_package_finds(self):
+        package_name = "dummy-package"
+        wanted_package_name = "wanted-package"
+        available_package = DummyFetchedPackage(package_name, "1.1")
+        wanted_package = DummyFetchedPackage(wanted_package_name, "1.1")
+
+        sources_dict = self.sourcesDictForPackages([available_package,
+                                                    wanted_package])
+        _, config = self.makeMetaDataAndConfigFixture(
+            [package_name, wanted_package_name], sources_dict,
+            extra_config=self.extra_config)
+        builder = HardwarePackBuilder(config.filename, "1.0", [])
+        found_package = builder.find_fetched_package(
+            [available_package, wanted_package], wanted_package_name)
+        self.assertEquals(wanted_package, found_package)
+
+    def test_find_fetched_package_raises(self):
+        package_name = "dummy-package"
+        wanted_package_name = "wanted-package"
+        available_package = DummyFetchedPackage(package_name, "1.1")
+
+        sources_dict = self.sourcesDictForPackages([available_package])
+        _, config = self.makeMetaDataAndConfigFixture(
+            [package_name], sources_dict,
+            extra_config=self.extra_config)
+        builder = HardwarePackBuilder(config.filename, "1.0", [])
+        packages = [available_package]
+        self.assertRaises(AssertionError, builder.find_fetched_package,
+                          packages, wanted_package_name)
 
     def test_creates_external_manifest(self):
         available_package = DummyFetchedPackage("foo", "1.1")
