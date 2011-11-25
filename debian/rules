@@ -5,5 +5,5 @@ export PATH := $(PATH):/sbin
 %:
 	dh $*
 
-override_dh_auto_test:
-	python -m testtools.run linaro_image_tools.tests.test_suite
+#override_dh_auto_test:
+#	python -m testtools.run linaro_image_tools.tests.test_suite

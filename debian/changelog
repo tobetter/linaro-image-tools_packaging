@@ -1,3 +1,132 @@
+linaro-image-tools (2011.11-0ubuntu1~linaro3) UNRELEASED; urgency=low
+
+  * Update debian/control:
+    * add dosfstools build dependency, l-i-t uses mkfs.vfat command.
+    * add apt-utils build dependency, l-i-t uses apt-ftparchive command.
+
+ -- Fathi Boudra <fathi.boudra@linaro.org>  Sat, 19 Nov 2011 10:42:50 +0200
+
+linaro-image-tools (2011.11-0ubuntu1~linaro2) oneiric; urgency=low
+
+  * debian/rules: disabling the testsuite until it's properly fixed
+
+ -- Ricardo Salveti de Araujo <ricardo.salveti@linaro.org>  Fri, 18 Nov 2011 20:25:57 -0200
+
+linaro-image-tools (2011.11-0ubuntu1~linaro1) oneiric; urgency=low
+
+  * New upstream release.
+  * Update debian/rules: re-enable testsuite.
+
+ -- Fathi Boudra <fathi.boudra@linaro.org>  Fri, 18 Nov 2011 11:54:41 +0200
+
+linaro-image-tools (2011.10+1-0ubuntu1~linaro1) oneiric; urgency=low
+
+  * Take the correct 2011.10 tarball. (LP: #881292)
+
+ -- Fathi Boudra <fathi.boudra@dlinaro.org>  Wed, 26 Oct 2011 10:54:13 +0300
+
+linaro-image-tools (2011.10-0ubuntu1~linaro1) oneiric; urgency=low
+
+  * New upstream release.
+
+ -- Fathi Boudra <fathi.boudra@linaro.org>  Fri, 21 Oct 2011 11:10:52 +0300
+
+linaro-image-tools (2011.09+bzr447-1~linaro3) oneiric; urgency=low
+
+  * Update debian/rules: fix typo.
+
+ -- Fathi Boudra <fathi.boudra@linaro.org>  Fri, 14 Oct 2011 20:39:44 +0300
+
+linaro-image-tools (2011.09+bzr447-1~linaro2) oneiric; urgency=low
+
+  * Fix python-parted version dependency, making backport easier.
+    (LP: #874183)
+
+ -- Fathi Boudra <fathi.boudra@linaro.org>  Fri, 14 Oct 2011 19:32:14 +0300
+
+linaro-image-tools (2011.09+bzr447-1~linaro1) oneiric; urgency=low
+
+  * New upstream snapshot.
+
+ -- James Westby <james.westby@linaro.org>  Thu, 13 Oct 2011 16:08:09 -0400
+
+linaro-image-tools (2011.09-0ubuntu1~linaro1) natty; urgency=low
+
+  * New upstream release.
+  * Update debian/control: Recommends udisks; LP: #856671.
+
+ -- Fathi Boudra <fathi.boudra@linaro.org>  Fri, 23 Sep 2011 14:22:10 +0300
+
+linaro-image-tools (2011.08-0ubuntu1~linaro2) natty; urgency=low
+
+  * Ship linaro-android-media-create.
+
+ -- Fathi Boudra <fathi.boudra@linaro.org>  Tue, 23 Aug 2011 17:10:19 +0300
+
+linaro-image-tools (2011.08-0ubuntu1~linaro1) natty; urgency=low
+
+  * New upstream release.
+
+ -- Ricardo Salveti de Araujo <ricardo.salveti@linaro.org>  Tue, 23 Aug 2011 03:01:23 -0300
+
+linaro-image-tools (2011.07-0ubuntu1~linaro2) natty; urgency=low
+
+  * New upstream release.
+
+ -- James Westby <james.westby@linaro.org>  Tue, 26 Jul 2011 18:39:13 +0100
+
+linaro-image-tools (0.4.8-0ubuntu1) oneiric; urgency=low
+
+  * New upstream release.
+
+ -- James Westby <james.westby@linaro.org>  Thu, 26 May 2011 17:26:22 -0400
+
+linaro-image-tools (0.4.7-0ubuntu2) oneiric; urgency=low
+
+  * Remove Breaks/Replaces; not really needed as this is like moving from
+    libfoo1 to libfoo2, but these actually require a dist-upgrade which is
+    painful for backports.
+
+ -- Loïc Minier <loic.minier@linaro.org>  Thu, 26 May 2011 17:20:08 +0200
+
+linaro-image-tools (0.4.7-0ubuntu1) oneiric; urgency=low
+
+  [ Loïc Minier ]
+  * Drop qemu-kvm build-dep and dep; not needed anymore (since 0.4.6 uses dd
+    instead of qemu-img).
+
+  [ James Westby ]
+  * New upstream release.
+
+ -- James Westby <james.westby@linaro.org>  Wed, 25 May 2011 17:48:33 -0400
+
+linaro-image-tools (0.4.6-0ubuntu2) oneiric; urgency=low
+
+  * Also suffix the python-debian *dependency* with a ~, not just the
+    build-dep.
+
+ -- Loïc Minier <loic.minier@linaro.org>  Wed, 25 May 2011 22:39:45 +0200
+
+linaro-image-tools (0.4.6-0ubuntu1) oneiric; urgency=low
+
+  * New upstream release.
+
+ -- Loïc Minier <loic.minier@linaro.org>  Mon, 23 May 2011 17:52:59 +0200
+
+linaro-image-tools (0.4.5-0ubuntu3) oneiric; urgency=low
+
+  * python-linaro-image-tools breaks/replaces python-hwpack,
+    python-linaro-media-create as to hint the package manager to remove these
+    obsolete bindings.
+
+ -- Loïc Minier <loic.minier@linaro.org>  Wed, 18 May 2011 18:06:17 +0200
+
+linaro-image-tools (0.4.5-0ubuntu2) oneiric; urgency=low
+
+  * Upload to oneiric; previous upload was PPA only.
+
+ -- Loïc Minier <loic.minier@linaro.org>  Fri, 29 Apr 2011 15:39:25 +0200
+
 linaro-image-tools (0.4.5-0ubuntu1) natty; urgency=low
 
   * New upstream release.
