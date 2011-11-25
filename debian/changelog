@@ -3,6 +3,7 @@ linaro-image-tools (2011.11-0ubuntu1~linaro3) UNRELEASED; urgency=low
   * Update debian/control:
     * add dosfstools build dependency, l-i-t uses mkfs.vfat command.
     * add apt-utils build dependency, l-i-t uses apt-ftparchive command.
+    * add python-testtools dependency, introduced with 2011.11 release.
 
  -- Fathi Boudra <fathi.boudra@linaro.org>  Sat, 19 Nov 2011 10:42:50 +0200
 
