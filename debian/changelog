@@ -1,5 +1,6 @@
-linaro-image-tools (2011.12-0ubuntu1~linaro1) UNRELEASED; urgency=low
+linaro-image-tools (2011.12-0ubuntu1~linaro1) oneiric; urgency=low
 
+  * New upstream release.
   * Update debian/control:
     * add dosfstools build dependency, l-i-t uses mkfs.vfat command.
     * add apt-utils build dependency, l-i-t uses apt-ftparchive command.

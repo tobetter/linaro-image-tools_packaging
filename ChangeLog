@@ -1,3 +1,190 @@
+2011-12-15  Danilo Segan  <danilo@canonical.com>
+
+	* linaro_image_tools/__version__.py:
+
+	Release 2011.12
+
+2011-12-15  Danilo Segan  <danilo@canonical.com>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	[r=salgado] Do not pass console=tty0 in the bootargs for PandaBoard AndroidConfig. Fixes #900460.
+
+2011-12-15  Danilo Segan  <danilo@canonical.com>
+
+	* linaro_image_tools/media_create/android_boards.py:
+
+	Drop console=tty0 from PandaBoard AndroidConfig.
+
+2011-12-15  Danilo Segan  <danilo@canonical.com>
+
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Make the test for panda-android not include console=tty0 option.
+
+2011-12-14  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Add support for i.MX6Q SabreLite board to linaro-media-create.
+
+2011-12-14  Eric Miao  <eric.miao@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Add support for Freescale i.MX6Q SabreLite board
+
+2011-12-08  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Increase the size of the system partition for android images from 256MB to 512MB
+
+2011-12-05  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Increase the size of the system partition for android images from 256MB to 512MB
+
+2011-12-02  Mattias Backman  <mattias.backman@linaro.org>
+
+	* README:
+	* linaro_image_tools/utils.py:
+
+	Remove runtime dependency for testtools by copying the try_import function from testtools.
+
+2011-11-28  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/utils.py:
+
+	Add license and origin information for try_import.
+
+2011-11-28  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/utils.py:
+
+	Steal try_import from testtools to avoid having testtools as a production dependency.
+
+2011-11-29  Georgy Redkozubov  <gesha@dev.rtsoft.ru>
+
+	* README:
+
+	[r=danilo] Add python-yaml to the list of dependencies in the README file. Fixes bug 897577.
+
+2011-11-29  Georgy Redkozubov  <gesha@dev.rtsoft.ru>
+
+	* README:
+
+	Added python-yaml to the dependency list
+
+2011-11-23  Loïc Minier  <lool@dooz.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Merge lp:~tixy/linaro-image-tools/vexpress-uboot-addresses-fix; fixes load
+	addresses on vexpress.
+
+2011-11-23  Jon Medhurst (Tixy)  <jon.medhurst@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Fix bad addresses in vexpress U-Boot script
+	
+	Having load_addr == kernel_addr will always crash on boot because U-Boot
+	will think the kernel is XIP and won't relocate it, leading to it trying
+	to execute the image header as code.
+
+2011-11-21  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* linaro_image_tools/fetch_image_settings.yaml:
+
+	Add the 11.11 release to fetch_image_settings.yaml
+
+2011-11-21  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* linaro_image_tools/fetch_image_settings.yaml:
+
+	Add the 11.11 release to fetch_image_settings.yaml
+
+2011-11-21  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* README:
+
+	Change the README to list python-testtools as a runtime dep and apt-utils as a test-suite dep
+
+2011-11-21  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* README:
+
+	Change the README to list python-testtools as a runtime dep and apt-utils as a test-suite dep
+
+2011-11-21  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Allow empty lines in Snowball startfiles config file.
+
+2011-11-17  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Handle whitespace in Snowball startfiles config file.
+
+2011-11-03  Leonid  <leonid.kudryavtsev@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Suggested fix NOT verified
+
+2011-11-21  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* README:
+	* linaro_image_tools/tests/test_pyflakes.py:
+	* linaro_image_tools/utils.py:
+
+	Use testtools.try_import for CommandNotFound; that way our pyflakes test can expect a clean output
+
+2011-11-21  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* README:
+	* linaro_image_tools/tests/test_pyflakes.py:
+	* linaro_image_tools/utils.py:
+
+	Use testtools.try_import for CommandNotFound; that way our pyflakes test can expect a clean output
+
+2011-11-21  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* linaro_image_tools/media_create/chroot_utils.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	In l-m-c, stop before trying to install hwpacks if we detect that we can't execute anything in the chroot
+
+2011-11-17  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Change a test to not hard-code a value
+
+2011-11-16  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* linaro_image_tools/media_create/chroot_utils.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	In l-m-c, stop before trying to install hwpacks if we detect that we can't execute anything in the chroot
+
+2011-11-17  Danilo Segan  <danilo@canonical.com>
+
+	* linaro_image_tools/__version__.py:
+
+	Post-release version bump to 2011.11.1
+
 2011-11-17  Danilo Segan  <danilo@canonical.com>
 
 	* linaro_image_tools/__version__.py:

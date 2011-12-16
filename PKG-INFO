@@ -1,6 +1,6 @@
 Metadata-Version: 1.1
 Name: linaro-image-tools
-Version: 2011.11
+Version: 2011.12
 Summary: Tools to create and write Linaro images
 Home-page: https://launchpad.net/linaro-image-tools
 Author: Linaro Infrastructure team
@@ -9,7 +9,6 @@ License: GPL v3 or later
 Description: UNKNOWN
 Platform: UNKNOWN
 Requires: BeautifulSoup
-Requires: CommandNotFound
 Requires: apt.cache
 Requires: apt.package
 Requires: apt_pkg

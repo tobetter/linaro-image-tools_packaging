@@ -690,6 +690,8 @@ class TestSnowballBootFiles(TestCaseWithFixtures):
             for line in src_data:
                 # Write comments, so we test that the parser can read them
                 f.write('#Yet another comment\n')
+                # Write whitespace, so we test that the parser can handle them
+                f.write('   \n\t\n \t \t \n')
                 f.write('%s %s %i %#x %s\n' % line)
         expected = []
         # Define dummy binary files, containing nothing but their own
@@ -1154,27 +1156,27 @@ class TestGetSfdiskCmd(TestCase):
 
     def test_panda_android(self):
         self.assertEqual(
-            '63,270272,0x0C,*\n270336,524288,L\n794624,524288,L\n' \
-                '1318912,-,E\n1318912,1048576,L\n2367488,,,-', 
-                android_boards.AndroidPandaConfig.get_sfdisk_cmd())
+            '63,270272,0x0C,*\n270336,1048576,L\n1318912,524288,L\n'
+            '1843200,-,E\n1843200,1048576,L\n2891776,,,-',
+            android_boards.AndroidPandaConfig.get_sfdisk_cmd())
 
     def test_origen_android(self):
         self.assertEqual(
-            '1,8191,0xDA\n8253,270274,0x0C,*\n278528,524288,L\n' \
-                '802816,-,E\n802816,524288,L\n1327104,1048576,L\n2375680,,,-',
-                android_boards.AndroidOrigenConfig.get_sfdisk_cmd())
+            '1,8191,0xDA\n8253,270274,0x0C,*\n278528,1048576,L\n'
+            '1327104,-,E\n1327104,524288,L\n1851392,1048576,L\n2899968,,,-',
+            android_boards.AndroidOrigenConfig.get_sfdisk_cmd())
 
     def test_snowball_emmc_android(self):
         self.assertEqual(
-            '256,7936,0xDA\n8192,262144,0x0C,*\n270336,524288,L\n' \
-                '794624,-,E\n794624,524288,L\n1318912,1048576,L\n2367488,,,-', 
-                android_boards.AndroidSnowballEmmcConfig.get_sfdisk_cmd())
+            '256,7936,0xDA\n8192,262144,0x0C,*\n270336,1048576,L\n'
+            '1318912,-,E\n1318912,524288,L\n1843200,1048576,L\n2891776,,,-',
+            android_boards.AndroidSnowballEmmcConfig.get_sfdisk_cmd())
 
     def test_vexpress_android(self):
         self.assertEqual(
-            '63,270272,0x0E,*\n270336,524288,L\n794624,524288,L\n' \
-                '1318912,-,E\n1318912,1048576,L\n2367488,,,-', 
-                android_boards.AndroidVexpressA9Config.get_sfdisk_cmd())
+            '63,270272,0x0E,*\n270336,1048576,L\n1318912,524288,L\n'
+            '1843200,-,E\n1843200,1048576,L\n2891776,,,-',
+            android_boards.AndroidVexpressA9Config.get_sfdisk_cmd())
 
 class TestGetSfdiskCmdV2(TestCase):
 
@@ -1230,9 +1232,9 @@ class TestGetBootCmd(TestCase):
         expected = {
             'bootargs': 'console=tty0 console=ttyAMA0,38400n8 '
                         'console=ttyXXX  root=UUID=deadbeef rootwait ro',
-            'bootcmd': 'fatload mmc 0:1 0x60008000 uImage; '
-                       'fatload mmc 0:1 0x81000000 uInitrd; '
-                       'bootm 0x60008000 0x81000000'}
+            'bootcmd': 'fatload mmc 0:1 0x60000000 uImage; '
+                       'fatload mmc 0:1 0x62000000 uInitrd; '
+                       'bootm 0x60000000 0x62000000'}
         self.assertEqual(expected, boot_commands)
 
     def test_vexpress_a9(self):
@@ -1242,9 +1244,9 @@ class TestGetBootCmd(TestCase):
         expected = {
             'bootargs': 'console=tty0 console=ttyAMA0,38400n8 '
                         'console=ttyXXX  root=UUID=deadbeef rootwait ro',
-            'bootcmd': 'fatload mmc 0:1 0x60008000 uImage; '
-                       'fatload mmc 0:1 0x81000000 uInitrd; '
-                       'bootm 0x60008000 0x81000000'}
+            'bootcmd': 'fatload mmc 0:1 0x60000000 uImage; '
+                       'fatload mmc 0:1 0x62000000 uInitrd; '
+                       'bootm 0x60000000 0x62000000'}
         self.assertEqual(expected, boot_commands)
 
     def test_mx51(self):
@@ -1410,7 +1412,7 @@ class TestGetBootCmdAndroid(TestCase):
         config.serial_tty = config._serial_tty
         boot_commands = config._get_boot_env(consoles=[])
         expected = {
-            'bootargs': 'console=tty0 console=ttyO2,115200n8 '
+            'bootargs': 'console=ttyO2,115200n8 '
                         'rootwait ro earlyprintk fixrtc '
                         'nocompcache vram=48M omapfb.vram=0:24M,1:24M '
                         'mem=456M@0x80000000 mem=512M@0xA0000000 '
@@ -1465,9 +1467,9 @@ class TestGetBootCmdAndroid(TestCase):
         expected = {
             'bootargs': 'console=tty0 console=ttyAMA0,38400n8 '
                         'rootwait ro init=/init androidboot.console=ttyAMA0',
-            'bootcmd': 'fatload mmc 0:1 0x60008000 uImage; '
-                       'fatload mmc 0:1 0x81000000 uInitrd; '
-                       'bootm 0x60008000 0x81000000'}
+            'bootcmd': 'fatload mmc 0:1 0x60000000 uImage; '
+                       'fatload mmc 0:1 0x62000000 uInitrd; '
+                       'bootm 0x60000000 0x62000000'}
         self.assertEqual(expected, boot_commands)
 
 
@@ -2716,6 +2718,7 @@ class TestInstallHWPack(TestCaseWithFixtures):
             'prepare_chroot %(chroot_dir)s %(tmp_dir)s',
             'cp %(linaro_hwpack_install)s %(chroot_dir)s/usr/bin',
             'mount proc %(chroot_dir)s/proc -t proc',
+            'chroot %(chroot_dir)s true',
             'cp hwpack1.tgz %(chroot_dir)s',
             ('%(chroot_args)s %(chroot_dir)s linaro-hwpack-install '
              '--force-yes /hwpack1.tgz'),
