@@ -1,3 +1,9 @@
+linaro-image-tools (2012.01-0ubuntu1~linaro1) oneiric; urgency=low
+
+  * New upstream release.
+
+ -- Fathi Boudra <fathi.boudra@linaro.org>  Tue, 24 Jan 2012 16:05:36 +0200
+
 linaro-image-tools (2011.12-0ubuntu1~linaro1) oneiric; urgency=low
 
   * New upstream release.
