@@ -1,3 +1,225 @@
+2012-01-19  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/__version__.py:
+
+	Release 2012.01
+
+2012-01-19  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-android-media-create:
+	* linaro-media-create:
+	* linaro_image_tools/media_create/__init__.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add options to linaro-android-media-create to pass in additional boot args.
+
+2012-01-19  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-android-media-create:
+	* linaro_image_tools/media_create/__init__.py:
+
+	Add the new code to l-a-m-c as well.
+
+2012-01-18  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+
+	Call add_boot_args() from add_boot_args_from_file().
+
+2012-01-17  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-media-create:
+	* linaro_image_tools/media_create/__init__.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add reading boot args from file.
+
+2012-01-16  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-media-create:
+	* linaro_image_tools/media_create/__init__.py:
+
+	Add command line option to add to boot args.
+
+2012-01-16  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Remove assignment to unused variable, just to fix the test suite.
+
+2012-01-16  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add add_boot_args() to BoardConfig.
+
+2012-01-17  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/partitions.py:
+
+	Make Android sdcard partition always FAT32.
+
+2011-12-21  Jon Medhurst (Tixy)  <jon.medhurst@linaro.org>
+
+	* linaro_image_tools/media_create/partitions.py:
+
+	Make Android sdcard partition always FAT32.
+
+2011-12-26  Georgy Redkozubov  <georgy.redkozubov@linaro.org>
+
+	* linaro_image_tools/media_create/partitions.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	[r=mabac] Run sfdisk -l in loop to wait for partition to settle after parted in function create_partitions.
+
+2011-12-26  Georgy Redkozubov  <georgy.redkozubov@linaro.org>
+
+	* linaro_image_tools/media_create/partitions.py:
+
+	Adjust error output to use with logger
+
+2011-12-23  Georgy Redkozubov  <georgy.redkozubov@linaro.org>
+
+	* linaro_image_tools/media_create/partitions.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Fixes pep8 style
+
+2011-12-22  Georgy Redkozubov  <georgy.redkozubov@linaro.org>
+
+	* linaro_image_tools/__version__.py:
+	* linaro_image_tools/fetch_image_settings.yaml:
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/partitions.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Resolved conflicts
+
+2011-12-22  Georgy Redkozubov  <georgy.redkozubov@linaro.org>
+
+	* linaro_image_tools/media_create/partitions.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Added tests for suggested fix.
+
+2011-12-13  Georgy Redkozubov  <georgy.redkozubov@linaro.org>
+
+	* linaro_image_tools/media_create/partitions.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Proposed fix. Wait in loop for disk being freed and run sfdisk after that.
+
+2011-12-22  Georgy Redkozubov  <georgy.redkozubov@linaro.org>
+
+	* linaro-hwpack-install:
+
+	[r=mabac] Unset TMPDIR variable in linaro-hwpack-install. Fixes bug 834803
+
+2011-12-06  Georgy Redkozubov  <georgy.redkozubov@linaro.org>
+
+	* linaro-hwpack-install:
+
+	Added warning message to the user about unsetting TMPDIR variable. In chroot environment it likely doesn't exist and can lead to error messages
+
+2011-12-02  Georgy Redkozubov  <georgy.redkozubov@linaro.org>
+
+	* linaro-hwpack-install:
+
+	Unset users TMPDIR variable
+
+2011-12-22  Georgy Redkozubov  <georgy.redkozubov@linaro.org>
+
+	* linaro_image_tools/media_create/partitions.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	[r=mabac] Add the ability to check for appearance of partitions to the UDisks service for the device being partitioned. Fixes bug 717129
+
+2011-12-22  Georgy Redkozubov  <georgy.redkozubov@linaro.org>
+
+	* linaro_image_tools/__version__.py:
+	* linaro_image_tools/fetch_image_settings.yaml:
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Resolving conflicts
+
+2011-12-22  Georgy Redkozubov  <georgy.redkozubov@linaro.org>
+
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Removed unnecessary print
+
+2011-12-22  Georgy Redkozubov  <georgy.redkozubov@linaro.org>
+
+	* linaro_image_tools/media_create/partitions.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Added tests for fix
+
+2011-12-13  Georgy Redkozubov  <georgy.redkozubov@linaro.org>
+
+	* linaro_image_tools/media_create/partitions.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Moved fix for bug 718665 to it's own branch since issue couldn't be reproduced and as a result verified easily.
+
+2011-12-13  Georgy Redkozubov  <georgy.redkozubov@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/partitions.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Incorporated fix from Guilhermes branch lp:~salgado/linaro-image-tools/717129
+
+2011-12-08  Georgy Redkozubov  <georgy.redkozubov@linaro.org>
+
+	* linaro_image_tools/media_create/partitions.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Added loop for wating partitions got created by the udev in function _get_device_file_for_partition_number. Added loop to wait for partition to settle after parted in function create_partitions.
+
+2011-12-19  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Remove console=tty0 on mx53loco bootargs. (LP: #900460)
+
+2011-12-19  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add tests for Android mx5 board config.
+
+2011-12-19  Fathi Boudra  <fathi.boudra@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+
+	Remove console=tty0 on mx53loco bootargs. (Closes: LP #900460
+
+2011-12-19  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/fetch_image_settings.yaml:
+
+	Updated fetch_image_settings.yaml to pick up 11.12 release
+
+2011-12-19  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro_image_tools/fetch_image_settings.yaml:
+
+	Updated fetch_image_settings.yaml to pick up 11.12 release
+
+2011-12-15  Danilo Segan  <danilo@canonical.com>
+
+	* linaro_image_tools/__version__.py:
+
+	Post-release version bump to 2011.12.1
+
 2011-12-15  Danilo Segan  <danilo@canonical.com>
 
 	* linaro_image_tools/__version__.py:

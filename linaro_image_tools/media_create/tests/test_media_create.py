@@ -30,6 +30,7 @@ import time
 import types
 import struct
 import tarfile
+import dbus
 
 from StringIO import StringIO
 from testtools import TestCase
@@ -92,6 +93,8 @@ from linaro_image_tools.media_create.partitions import (
     setup_partitions,
     get_uuid,
     _parse_blkid_output,
+    wait_partition_to_settle,
+    _get_device_file_for_partition_number,
     )
 from linaro_image_tools.media_create.rootfs import (
     append_to_fstab,
@@ -256,7 +259,7 @@ class TestHardwarepackHandler(TestCaseWithFixtures):
         with hp:
             test_file = hp.get_file(metadata_file)
             self.assertEquals(data, open(test_file, 'r').read())
-        
+
 
 class TestSetMetadata(TestCaseWithFixtures):
 
@@ -1178,6 +1181,13 @@ class TestGetSfdiskCmd(TestCase):
             '1843200,-,E\n1843200,1048576,L\n2891776,,,-',
             android_boards.AndroidVexpressA9Config.get_sfdisk_cmd())
 
+    def test_mx5_android(self):
+        self.assertEqual(
+            '1,8191,0xDA\n8192,262144,0x0C,*\n270336,1048576,L\n'
+            '1318912,-,E\n1318912,524288,L\n1843200,1048576,L\n2891776,,,-',
+            android_boards.AndroidMx53LoCoConfig.get_sfdisk_cmd())
+
+
 class TestGetSfdiskCmdV2(TestCase):
 
     def test_mx5(self):
@@ -1320,7 +1330,6 @@ class TestGetBootCmd(TestCase):
                        'bootm 0x00100000 0x08000000'}
         self.assertEqual(expected, boot_commands)
 
-
     def test_panda(self):
         # XXX: To fix bug 697824 we have to change class attributes of our
         # OMAP board configs, and some tests do that so to make sure they
@@ -1403,6 +1412,100 @@ class TestGetBootCmd(TestCase):
         self.assertEqual(expected, boot_commands)
 
 
+class TestExtraBootCmd(TestCaseWithFixtures):
+
+    def test_no_extra_args(self):
+        boot_args = ''.join(
+            random.choice(string.ascii_lowercase) for x in range(15))
+        class config(BoardConfig):
+            extra_boot_args_options = boot_args
+        boot_commands = config._get_boot_env(
+            is_live=False, is_lowmem=False, consoles=['ttyXXX'],
+            rootfs_uuid="deadbeef", d_img_data=None)
+        expected = ' '.join([' console=ttyXXX  root=UUID=deadbeef rootwait ro',
+                             boot_args])
+        self.assertEqual(expected, boot_commands['bootargs'])
+
+    def test_none_extra_args(self):
+        boot_args = ''.join(
+            random.choice(string.ascii_lowercase) for x in range(15))
+        extra_args = None
+        class config(BoardConfig):
+            extra_boot_args_options = boot_args
+        config.add_boot_args(extra_args)
+        boot_commands = config._get_boot_env(
+            is_live=False, is_lowmem=False, consoles=['ttyXXX'],
+            rootfs_uuid="deadbeef", d_img_data=None)
+        expected = ' '.join([' console=ttyXXX  root=UUID=deadbeef rootwait ro',
+                             boot_args])
+        self.assertEqual(expected, boot_commands['bootargs'])
+
+    def test_string_extra_args(self):
+        boot_args = ''.join(
+            random.choice(string.ascii_lowercase) for x in range(15))
+        extra_args = ''.join(
+            random.choice(string.ascii_lowercase) for x in range(15))
+        class config(BoardConfig):
+            extra_boot_args_options = boot_args
+        config.add_boot_args(extra_args)
+        boot_commands = config._get_boot_env(
+            is_live=False, is_lowmem=False, consoles=['ttyXXX'],
+            rootfs_uuid="deadbeef", d_img_data=None)
+        expected = ' '.join([' console=ttyXXX  root=UUID=deadbeef rootwait ro',
+                             boot_args, extra_args])
+        self.assertEqual(expected, boot_commands['bootargs'])
+
+    def test_file_extra_args(self):
+        boot_args = ''.join(
+            random.choice(string.ascii_lowercase) for x in range(15))
+        extra_args = ''.join(
+            random.choice(string.ascii_lowercase) for x in range(15))
+        boot_arg_path = self.createTempFileAsFixture()
+        with open(boot_arg_path, 'w') as boot_arg_file:
+            boot_arg_file.write(extra_args)
+        class config(BoardConfig):
+            extra_boot_args_options = boot_args
+        config.add_boot_args_from_file(boot_arg_path)
+        boot_commands = config._get_boot_env(
+            is_live=False, is_lowmem=False, consoles=['ttyXXX'],
+            rootfs_uuid="deadbeef", d_img_data=None)
+        expected = ' '.join([' console=ttyXXX  root=UUID=deadbeef rootwait ro',
+                             boot_args, extra_args])
+        self.assertEqual(expected, boot_commands['bootargs'])
+
+    def test_none_file_extra_args(self):
+        boot_args = ''.join(
+            random.choice(string.ascii_lowercase) for x in range(15))
+        boot_arg_path = None
+        class config(BoardConfig):
+            extra_boot_args_options = boot_args
+        config.add_boot_args_from_file(boot_arg_path)
+        boot_commands = config._get_boot_env(
+            is_live=False, is_lowmem=False, consoles=['ttyXXX'],
+            rootfs_uuid="deadbeef", d_img_data=None)
+        expected = ' '.join([' console=ttyXXX  root=UUID=deadbeef rootwait ro',
+                             boot_args])
+        self.assertEqual(expected, boot_commands['bootargs'])
+
+    def test_whitespace_file_extra_args(self):
+        boot_args = ''.join(
+            random.choice(string.ascii_lowercase) for x in range(15))
+        extra_args = ''.join(
+            random.choice(string.ascii_lowercase) for x in range(15))
+        boot_arg_path = self.createTempFileAsFixture()
+        with open(boot_arg_path, 'w') as boot_arg_file:
+            boot_arg_file.write('\n\n \t ' + extra_args + '  \n\n')
+        class config(BoardConfig):
+            extra_boot_args_options = boot_args
+        config.add_boot_args_from_file(boot_arg_path)
+        boot_commands = config._get_boot_env(
+            is_live=False, is_lowmem=False, consoles=['ttyXXX'],
+            rootfs_uuid="deadbeef", d_img_data=None)
+        expected = ' '.join([' console=ttyXXX  root=UUID=deadbeef rootwait ro',
+                             boot_args, extra_args])
+        self.assertEqual(expected, boot_commands['bootargs'])
+
+
 class TestGetBootCmdAndroid(TestCase):
     def test_panda(self):
         # XXX: To fix bug 697824 we have to change class attributes of our
@@ -1470,6 +1573,19 @@ class TestGetBootCmdAndroid(TestCase):
             'bootcmd': 'fatload mmc 0:1 0x60000000 uImage; '
                        'fatload mmc 0:1 0x62000000 uInitrd; '
                        'bootm 0x60000000 0x62000000'}
+        self.assertEqual(expected, boot_commands)
+
+    def test_android_mx5(self):
+        boot_commands = (android_boards.AndroidMx53LoCoConfig.
+                         _get_boot_env(consoles=[]))
+        expected = {
+            'bootargs': 'console=ttymxc0,115200n8 '
+                        'rootwait ro earlyprintk rootdelay=1 fixrtc '
+                        'nocompcache di1_primary tve init=/init '
+                        'androidboot.console=ttymxc0',
+            'bootcmd': 'fatload mmc 0:2 0x70000000 uImage; '
+                       'fatload mmc 0:2 0x72000000 uInitrd; '
+                       'bootm 0x70000000 0x72000000'}
         self.assertEqual(expected, boot_commands)
 
 
@@ -1805,7 +1921,9 @@ class TestCreatePartitions(TestCaseWithFixtures):
 
         self.assertEqual(
             ['%s parted -s %s mklabel msdos' % (sudo_args, self.media.path),
-             'sync'],
+             '%s sfdisk -l %s' % (sudo_args, self.media.path),
+             'sync',
+             '%s sfdisk -l %s' % (sudo_args, self.media.path)],
             popen_fixture.mock.commands_executed)
         # Notice that we create all partitions in a single sfdisk run because
         # every time we run sfdisk it actually repartitions the device,
@@ -1825,7 +1943,9 @@ class TestCreatePartitions(TestCaseWithFixtures):
 
         self.assertEqual(
             ['%s parted -s %s mklabel msdos' % (sudo_args, self.media.path),
-             'sync'],
+             '%s sfdisk -l %s' % (sudo_args, self.media.path),
+             'sync',
+             '%s sfdisk -l %s' % (sudo_args, self.media.path)],
             popen_fixture.mock.commands_executed)
         # Notice that we create all partitions in a single sfdisk run because
         # every time we run sfdisk it actually repartitions the device,
@@ -1844,7 +1964,9 @@ class TestCreatePartitions(TestCaseWithFixtures):
 
         self.assertEqual(
             ['%s parted -s %s mklabel msdos' % (sudo_args, self.media.path),
-             'sync'],
+             '%s sfdisk -l %s' % (sudo_args, self.media.path),
+             'sync',
+             '%s sfdisk -l %s' % (sudo_args, self.media.path)],
             popen_fixture.mock.commands_executed)
         # Notice that we create all partitions in a single sfdisk run because
         # every time we run sfdisk it actually repartitions the device,
@@ -1862,7 +1984,9 @@ class TestCreatePartitions(TestCaseWithFixtures):
 
         self.assertEqual(
             ['%s parted -s %s mklabel msdos' % (sudo_args, self.media.path),
-             'sync'],
+             '%s sfdisk -l %s' % (sudo_args, self.media.path),
+             'sync',
+             '%s sfdisk -l %s' % (sudo_args, self.media.path)],
             popen_fixture.mock.commands_executed)
         self.assertEqual(
             [('63,106432,0x0C,*\n106496,,,-', HEADS, SECTORS, '',
@@ -1880,7 +2004,11 @@ class TestCreatePartitions(TestCaseWithFixtures):
         # Unlike the test for partitioning of a regular block device, in this
         # case parted was not called as there's no existing partition table
         # for us to overwrite on the image file.
-        self.assertEqual(['sync'], popen_fixture.mock.commands_executed)
+        self.assertEqual(
+            ['%s sfdisk -l %s' % (sudo_args, tmpfile),
+             'sync',
+             '%s sfdisk -l %s' % (sudo_args, tmpfile)],
+            popen_fixture.mock.commands_executed)
 
         self.assertEqual(
             [('63,106432,0x0C,*\n106496,,,-', HEADS, SECTORS, '', tmpfile)],
@@ -1905,6 +2033,54 @@ class TestCreatePartitions(TestCaseWithFixtures):
             ',1,0xDA', HEADS, SECTORS, '', tmpfile, as_root=False,
             stderr=subprocess.PIPE)
 
+    def test_wait_partitions_to_settle(self):
+        class Namespace:
+            pass
+
+        ns = Namespace()
+        ns.count = 0
+
+        class MockCmdRunnerPopen(object):
+            def __call__(self, cmd, *args, **kwargs):
+                ns.count += 1
+                self.returncode = 0
+                if ns.count < 5:
+                    raise cmd_runner.SubcommandNonZeroReturnValue(args, 1)
+                else:
+                    return self
+
+            def communicate(self, input=None):
+                self.wait()
+                return '', ''
+
+            def wait(self):
+                return self.returncode
+
+        self.useFixture(MockCmdRunnerPopenFixture())
+
+        tmpfile = self.createTempFileAsFixture()
+        media = Media(tmpfile)
+        media.is_block_device = True
+
+        self.assertEqual(0, wait_partition_to_settle(media))
+
+    def test_wait_partitions_to_settle_raises_SubcommandNonZeroReturnValue(self):
+        def mock_run(args, as_root=False, chroot=None, stdin=None, stdout=None,
+            stderr=None, cwd=None):
+            raise cmd_runner.SubcommandNonZeroReturnValue(args, 1)
+
+        self.useFixture(MockSomethingFixture(
+            cmd_runner, 'run',
+            mock_run))
+
+        tmpfile = self.createTempFileAsFixture()
+        media = Media(tmpfile)
+        media.is_block_device = True
+
+        self.assertRaises(cmd_runner.SubcommandNonZeroReturnValue,
+            wait_partition_to_settle,
+            media)
+
 
 class TestPartitionSetup(TestCaseWithFixtures):
 
@@ -1916,7 +2092,7 @@ class TestPartitionSetup(TestCaseWithFixtures):
         self.linux_image_size = 30 * 1024**2
         self.linux_offsets_and_sizes = [
             (16384 * SECTOR_SIZE, 15746 * SECTOR_SIZE),
-            (32768 * SECTOR_SIZE, (self.linux_image_size - 
+            (32768 * SECTOR_SIZE, (self.linux_image_size -
                                         32768 * SECTOR_SIZE))
             ]
         self.android_image_size = 256 * 1024**2
@@ -1928,17 +2104,17 @@ class TestPartitionSetup(TestCaseWithFixtures):
             (98367 * SECTOR_SIZE, 65536 * SECTOR_SIZE),
             ((294975 + ext_part_size) * SECTOR_SIZE,
              (131072 - ext_part_size) * SECTOR_SIZE),
-            ((426047 + ext_part_size) * SECTOR_SIZE, 
+            ((426047 + ext_part_size) * SECTOR_SIZE,
              self.android_image_size - (426047 + ext_part_size) * SECTOR_SIZE)
             ]
-        
+
         self.android_snowball_offsets_and_sizes = [
             (8192 * SECTOR_SIZE, 24639 * SECTOR_SIZE),
             (32831 * SECTOR_SIZE, 65536 * SECTOR_SIZE),
-            ((98367  + ext_part_size)* SECTOR_SIZE, 
+            ((98367 + ext_part_size)* SECTOR_SIZE,
              (65536 - ext_part_size) * SECTOR_SIZE),
             (294975 * SECTOR_SIZE, 131072 * SECTOR_SIZE),
-            ((426047 + ext_part_size) * SECTOR_SIZE, 
+            ((426047 + ext_part_size) * SECTOR_SIZE,
              self.android_image_size - (426047 + ext_part_size) * SECTOR_SIZE)
             ]
 
@@ -2077,7 +2253,7 @@ class TestPartitionSetup(TestCaseWithFixtures):
         get_boot_and_root_loopback_devices(tmpfile)
         self.assertEqual(
             ['%s losetup -f --show %s --offset %s --sizelimit %s'
-                % (sudo_args, tmpfile, offset, size) for (offset, size) in 
+                % (sudo_args, tmpfile, offset, size) for (offset, size) in
              self.linux_offsets_and_sizes],
             popen_fixture.mock.commands_executed)
 
@@ -2105,7 +2281,7 @@ class TestPartitionSetup(TestCaseWithFixtures):
         get_android_loopback_devices(tmpfile)
         self.assertEqual(
             ['%s losetup -f --show %s --offset %s --sizelimit %s'
-                % (sudo_args, tmpfile, offset, size) for (offset, size) in 
+                % (sudo_args, tmpfile, offset, size) for (offset, size) in
              self.android_offsets_and_sizes],
             popen_fixture.mock.commands_executed)
 
@@ -2152,11 +2328,13 @@ class TestPartitionSetup(TestCaseWithFixtures):
         self.assertEqual(
              # This is the call that would create a 2 GiB image file.
             ['dd of=%s bs=1 seek=2147483648 count=0' % tmpfile,
+             '%s sfdisk -l %s' % (sudo_args, tmpfile),
              # This call would partition the image file.
              '%s sfdisk --force -D -uS -H %s -S %s -C 1024 %s' % (
                  sudo_args, HEADS, SECTORS, tmpfile),
              # Make sure changes are written to disk.
              'sync',
+             '%s sfdisk -l %s' % (sudo_args, tmpfile),
              '%s mkfs.vfat -F 32 %s -n boot' % (sudo_args, bootfs_dev),
              '%s mkfs.ext3 %s -L root' % (sudo_args, rootfs_dev)],
             popen_fixture.mock.commands_executed)
@@ -2180,9 +2358,11 @@ class TestPartitionSetup(TestCaseWithFixtures):
             True, True, True)
         self.assertEqual(
             ['%s parted -s %s mklabel msdos' % (sudo_args, tmpfile),
+             '%s sfdisk -l %s' % (sudo_args, tmpfile),
              '%s sfdisk --force -D -uS -H %s -S %s %s' % (
                  sudo_args, HEADS, SECTORS, tmpfile),
              'sync',
+             '%s sfdisk -l %s' % (sudo_args, tmpfile),
              # Since the partitions are mounted, setup_partitions will umount
              # them before running mkfs.
              '%s umount %s' % (sudo_args, bootfs_dev),
@@ -2190,6 +2370,72 @@ class TestPartitionSetup(TestCaseWithFixtures):
              '%s mkfs.vfat -F 32 %s -n boot' % (sudo_args, bootfs_dev),
              '%s mkfs.ext3 %s -L root' % (sudo_args, rootfs_dev)],
             popen_fixture.mock.commands_executed)
+
+    def test_get_device_file_for_partition_number_raises_DBusException(self):
+        def mock_get_udisks_device_path(d):
+            raise dbus.exceptions.DBusException
+
+        self.useFixture(MockSomethingFixture(
+            partitions, '_get_udisks_device_path',
+            mock_get_udisks_device_path))
+
+        tmpfile = self.createTempFileAsFixture()
+        partition = board_configs['beagle'].mmc_part_offset
+
+        self.useFixture(MockSomethingFixture(
+            glob, 'glob',
+            lambda pathname: ['%s%d' % (tmpfile, partition)]))
+
+        self.useFixture(MockSomethingFixture(
+            sys, 'stdout', open('/dev/null', 'w')))
+
+        media = Media(tmpfile)
+        media.is_block_device = True
+        self.assertRaises(dbus.exceptions.DBusException,
+            _get_device_file_for_partition_number,
+            media.path, partition)
+
+    def test_get_device_file_for_partition_number(self):
+        class Namespace:
+            pass
+        ns = Namespace()
+        ns.count = 0
+
+        def mock_get_udisks_device_path(dev):
+            ns.count += 1
+            if ns.count < 5:
+                raise dbus.exceptions.DBusException
+            else:
+                return '/abc/123'
+
+        def mock_get_udisks_device_file(dev, part):
+            if ns.count < 5:
+                raise dbus.exceptions.DBusException
+            else:
+                return '/abc/123'
+
+        self.useFixture(MockSomethingFixture(
+            partitions, '_get_udisks_device_path',
+            mock_get_udisks_device_path))
+
+        self.useFixture(MockSomethingFixture(
+            partitions, '_get_udisks_device_file',
+            mock_get_udisks_device_file))
+
+        tmpfile = self.createTempFileAsFixture()
+        partition = board_configs['beagle'].mmc_part_offset
+
+        self.useFixture(MockSomethingFixture(
+            glob, 'glob',
+            lambda pathname: ['%s%d' % (tmpfile, partition)]))
+
+        self.useFixture(MockSomethingFixture(
+            sys, 'stdout', open('/dev/null', 'w')))
+
+        media = Media(tmpfile)
+        media.is_block_device = True
+        self.assertIsNotNone(_get_device_file_for_partition_number(
+            media.path, partition))
 
 
 class TestException(Exception):

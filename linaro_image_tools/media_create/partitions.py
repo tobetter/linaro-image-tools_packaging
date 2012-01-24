@@ -38,10 +38,13 @@ from linaro_image_tools import cmd_runner
 
 HEADS = 128
 SECTORS = 32
-SECTOR_SIZE = 512 # bytes
+SECTOR_SIZE = 512  # bytes
 CYLINDER_SIZE = HEADS * SECTORS * SECTOR_SIZE
 DBUS_PROPERTIES = 'org.freedesktop.DBus.Properties'
 UDISKS = "org.freedesktop.UDisks"
+# Max number of attempts to sleep (total sleep time in seconds =
+# 1+2+...+MAX_TTS)
+MAX_TTS = 10
 
 
 def setup_android_partitions(board_config, media, image_size, bootfs_label,
@@ -63,7 +66,7 @@ def setup_android_partitions(board_config, media, image_size, bootfs_label,
 
     if media.is_block_device:
         bootfs, system, cache, data, sdcard = \
-            get_android_partitions_for_media (media, board_config)
+            get_android_partitions_for_media(media, board_config)
         ensure_partition_is_not_mounted(bootfs)
         ensure_partition_is_not_mounted(system)
         ensure_partition_is_not_mounted(cache)
@@ -93,7 +96,7 @@ def setup_android_partitions(board_config, media, image_size, bootfs_label,
         proc.wait()
 
     proc = cmd_runner.run(
-        ['mkfs.vfat', '-F', str(board_config.fat_size), sdcard, '-n',
+        ['mkfs.vfat', '-F32', sdcard, '-n',
          "sdcard"],
         as_root=True)
     proc.wait()
@@ -377,7 +380,7 @@ def get_android_partitions_for_media(media, board_config):
             media.path, 3 + board_config.mmc_part_offset)
     else:
         # In the current setup, partition 4 is always the
-        # extended partition container, so we need to skip 4 
+        # extended partition container, so we need to skip 4
         cache_partition = _get_device_file_for_partition_number(
             media.path, 5)
     data_partition = _get_device_file_for_partition_number(
@@ -428,14 +431,32 @@ def _get_device_file_for_partition_number(device, partition):
     """
     # This could be simpler but UDisks doesn't make it easy for us:
     # https://bugs.freedesktop.org/show_bug.cgi?id=33113.
-    for dev_file in glob.glob("%s?*" % device):
-        device_path = _get_udisks_device_path(dev_file)
-        udisks_dev = dbus.SystemBus().get_object(UDISKS, device_path)
-        part_number = udisks_dev.Get(
-            device_path, 'PartitionNumber', dbus_interface=DBUS_PROPERTIES)
-        if part_number == partition:
-            return str(udisks_dev.Get(
-                device_path, 'DeviceFile', dbus_interface=DBUS_PROPERTIES))
+    time_to_sleep = 1
+    dev_files = glob.glob("%s?*" % device)
+    i = 0
+    while i < len(dev_files):
+        dev_file = dev_files[i]
+        try:
+            device_path = _get_udisks_device_path(dev_file)
+            partition_str = _get_udisks_device_file(device_path, partition)
+            if partition_str:
+                return partition_str
+            i += 1
+        except dbus.exceptions.DBusException, e:
+            if time_to_sleep > MAX_TTS:
+                print "We've waited long enough..."
+                raise
+            print "*" * 60
+            print "UDisks doesn't know about %s: %s" % (dev_file, e)
+            bus = dbus.SystemBus()
+            manager = dbus.Interface(
+                bus.get_object(UDISKS, "/org/freedesktop/UDisks"), UDISKS)
+            print "This is what UDisks know about: %s" % (
+                manager.EnumerateDevices())
+            print "Sleeping for %d seconds" % time_to_sleep
+            time.sleep(time_to_sleep)
+            time_to_sleep += 1
+            print "*" * 60
     return None
 
 
@@ -445,6 +466,16 @@ def _get_udisks_device_path(device):
     udisks = dbus.Interface(
         bus.get_object(UDISKS, "/org/freedesktop/UDisks"), UDISKS)
     return udisks.get_dbus_method('FindDeviceByDeviceFile')(device)
+
+
+def _get_udisks_device_file(path, part):
+    """Return the UNIX special device file for the given partition."""
+    udisks_dev = dbus.SystemBus().get_object(UDISKS, path)
+    part_number = udisks_dev.Get(
+        path, 'PartitionNumber', dbus_interface=DBUS_PROPERTIES)
+    if part_number == part:
+        return str(udisks_dev.Get(
+            path, 'DeviceFile', dbus_interface=DBUS_PROPERTIES))
 
 
 def convert_size_to_bytes(size):
@@ -516,6 +547,8 @@ def create_partitions(board_config, media, heads, sectors, cylinders=None,
             ['parted', '-s', media.path, 'mklabel', 'msdos'], as_root=True)
         proc.wait()
 
+    wait_partition_to_settle(media)
+
     sfdisk_cmd = board_config.get_sfdisk_cmd(
         should_align_boot_part=should_align_boot_part)
 
@@ -523,11 +556,33 @@ def create_partitions(board_config, media, heads, sectors, cylinders=None,
 
     # Sync and sleep to wait for the partition to settle.
     cmd_runner.run(['sync']).wait()
-    # Sleeping just 1 second seems to be enough here, but if we start getting
-    # errors because the disk is not partitioned then we should revisit this.
-    # XXX: This sleep can probably die now; need to do more tests before doing
-    # so, though.
-    time.sleep(1)
+    wait_partition_to_settle(media)
+
+
+def wait_partition_to_settle(media):
+    """Sleep in a loop to wait partition to settle
+
+    :param media: A setup_partitions.Media object to partition.
+    """
+    logger = logging.getLogger("linaro_image_tools")
+    tts = 1
+    while (tts > 0) and (tts <= MAX_TTS):
+        try:
+            logger.info("Sleeping for %s second(s) to wait "
+                        "for the partition to settle" % tts)
+            time.sleep(tts)
+            proc = cmd_runner.run(
+                ['sfdisk', '-l', media.path],
+                as_root=True, stdout=open('/dev/null', 'w'))
+            proc.wait()
+            return 0
+        except cmd_runner.SubcommandNonZeroReturnValue:
+            logger.info("Partition table is not available "
+                        "for device %s" % media.path)
+            tts += 1
+    logger.error("Couldn't read partition table "
+                 "for a reasonable time for device %s" % media.path)
+    raise
 
 
 class Media(object):
