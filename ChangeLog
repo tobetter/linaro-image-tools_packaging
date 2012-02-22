@@ -1,3 +1,261 @@
+2012-02-21  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/__version__.py:
+
+	Release 2012.02
+
+2012-02-21  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Fix test so that a startupfiles dir is not needed.
+
+2012-02-21  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add support for Snowball EMMC startupfiles for l-a-m-c
+
+2012-02-21  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Change delete_startupfiles to be a classproperty.
+
+2012-02-20  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Undo line break and remove new arguments from another call.
+
+2012-02-20  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-android-media-create:
+
+	Revert the call from linaro-android-media-create.
+
+2012-02-20  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Remove the new arguments to populate_raw_partition and get them from a class function instead. Add tests for populate_raw_partition.
+
+2012-02-17  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Start fixing review comments.
+
+2012-02-16  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+
+	Add an error message for when the user forgot to supply the startupfiles.
+
+2012-02-16  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Look for the startupfiles in configdir and don't assume that they are in the boot partition.
+
+2012-02-16  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro-android-media-create:
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add separate source dir for startfiles so we can pass in a different dir from l-m-c and l-a-m-c. Add flag for deleting the startupfiles on disk.
+
+2012-02-16  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Merge fix argument order in populate_raw_partition().
+
+2012-02-09  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+
+	The u-boot-env.bin will be in the ./boot folder, not in the boot tarball.
+
+2012-02-09  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+
+	Also assume u-boot-env.bin is in the boot tarball.
+
+2012-02-08  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+
+	A hack for copying the u-boot.bin file from boot.tar.bz2 for Snowball. It expects the user to have put the startfiles in ./boot .
+
+2012-02-21  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Fix the order of populate_raw_partition() arguments.
+
+2012-02-16  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/boards.py:
+
+	Switch arguments to Snowball populate_raw_partitions() so that it matches the parent function signature.
+
+2012-02-20  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* linaro-android-media-create:
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add support for Android on the Mx6QSabrelite board
+
+2012-02-20  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* linaro-android-media-create:
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Add a couple tests for AndroidMx6QSabreliteConfig
+
+2012-02-19  Bernhard Rosenkraenzer  <Bernhard.Rosenkranzer@linaro.org
+
+	* linaro_image_tools/media_create/android_boards.py:
+
+	Add comment on dtb_name path
+
+2012-02-19  Bernhard Rosenkraenzer  <Bernhard.Rosenkranzer@linaro.org
+
+	* linaro_image_tools/media_create/android_boards.py:
+
+	Whitespace adjustment
+
+2012-02-19  Bernhard Rosenkraenzer  <Bernhard.Rosenkranzer@linaro.org
+
+	* linaro_image_tools/media_create/android_boards.py:
+
+	Make sure dtb_name is None for all non-mx6qsabrelite
+	Android builds, the way it used to be
+
+2012-02-19  Bernhard Rosenkraenzer  <Bernhard.Rosenkranzer@linaro.org
+
+	* linaro_image_tools/media_create/android_boards.py:
+
+	Adjust whitespace to match the rest of the code
+
+2012-02-15  Bernhard Rosenkraenzer  <Bernhard.Rosenkranzer@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+
+	Pass DeviceTree file correctly
+	
+	Signed-off-by: Bernhard Rosenkraenzer <Bernhard.Rosenkranzer@linaro.org>
+
+2012-02-12  Bernhard Rosenkraenzer  <Bernhard.Rosenkranzer@linaro.org
+
+	* linaro_image_tools/media_create/android_boards.py:
+
+	Add support for Android on mx6qsabrelite
+	
+	Signed-off-by: Bernhard Rosenkraenzer <Bernhard.Rosenkranzer@linaro.org>
+
+2012-02-08  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	snowball: android: Increasing mali memory to 64MB.
+
+2012-02-08  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Update tests for Snowball Android configs.
+
+2012-02-08  Mathieu Poirier  <mathieu.poirier@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+
+	snowball: android: Increasing mali memory to 64MB.
+
+2012-02-01  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Fix booting from emmc for Snowball by changing mmc partition. Thanks Benn Pörscke for fixing this.
+
+2012-02-01  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/media_create/android_boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Benn Porscke's fix for Snowball Android emmc boot.
+
+2012-01-31  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-fetch-image-ui:
+
+	Fixed UI bug lp:832327
+
+2011-12-13  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-fetch-image-ui:
+
+	Padding for grid2 is now calculated using its size (no fixed guess about how big it is in pixels).
+
+2011-12-12  James Tunnicliffe  <james.tunnicliffe@linaro.org>
+
+	* linaro-fetch-image-ui:
+
+	Having tried many update, refresh and resize calls, forcing the size of the collapsable pane on page 2 (OS selection) seems to be the only way to fix bug #832327.
+
+2012-01-25  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Make sure the new --extra-boot-args argument works when the extra_boot_args_options attribute of the board config is set to None
+
+2012-01-24  Guilherme Salgado  <guilherme.salgado@linaro.org>
+
+	* linaro_image_tools/media_create/boards.py:
+	* linaro_image_tools/media_create/tests/test_media_create.py:
+
+	Make sure the new --extra-boot-args argument works when the extra_boot_args_options attribute of the board config is set to None
+
+2012-01-25  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/fetch_image_settings.yaml:
+
+	Add fetch-image setting for 12.01.
+
+2012-01-25  Fathi Boudra  <fathi.boudra@linaro.org>
+
+	* linaro_image_tools/fetch_image_settings.yaml:
+
+	Update fetch_image_settings.yaml to pick up 12.01 release.
+
+2012-01-19  Mattias Backman  <mattias.backman@linaro.org>
+
+	* linaro_image_tools/__version__.py:
+
+	Post-release version bump to 2012.01.1
+
 2012-01-19  Mattias Backman  <mattias.backman@linaro.org>
 
 	* linaro_image_tools/__version__.py:

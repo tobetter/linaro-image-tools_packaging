@@ -37,6 +37,7 @@ from linaro_image_tools.media_create.boards import VexpressA9Config
 from linaro_image_tools.media_create.boards import (
     align_up,
     align_partition,
+    classproperty,
     make_boot_script,
     install_mx5_boot_loader,
     )
@@ -76,7 +77,10 @@ class AndroidBoardConfig(object):
         """
         boot_env = {}
         boot_env["bootargs"] = cls._get_bootargs(consoles)
-        boot_env["bootcmd"] = cls._get_bootcmd(None)
+        # On Android, the DTB file is always built as part of the kernel it
+        # comes from - and lives in the same directory in the boot tarball, so
+        # here we don't need to pass the whole path to it.
+        boot_env["bootcmd"] = cls._get_bootcmd(cls.dtb_name)
         return boot_env
 
     @classmethod
@@ -162,7 +166,7 @@ class AndroidBoardConfig(object):
 
     @classmethod
     def populate_raw_partition(cls, media, boot_dir):
-        super(AndroidBoardConfig, cls).populate_raw_partition(boot_dir, media)
+        super(AndroidBoardConfig, cls).populate_raw_partition(media, boot_dir)
 
     @classmethod
     def install_boot_loader(cls, boot_partition, boot_device_or_file):
@@ -170,12 +174,13 @@ class AndroidBoardConfig(object):
 
 
 class AndroidOmapConfig(AndroidBoardConfig):
-    pass
+    dtb_name = None
 
 
 class AndroidBeagleConfig(AndroidOmapConfig, BeagleConfig):
     _extra_serial_opts = 'console=tty0 console=ttyO2,115200n8'
     android_specific_args = 'init=/init androidboot.console=ttyO2'
+    dtb_name = None
 
 
 class AndroidPandaConfig(AndroidOmapConfig, PandaConfig):
@@ -184,13 +189,14 @@ class AndroidPandaConfig(AndroidOmapConfig, PandaConfig):
         'earlyprintk fixrtc nocompcache vram=48M '
         'omapfb.vram=0:24M,1:24M mem=456M@0x80000000 mem=512M@0xA0000000')
     android_specific_args = 'init=/init androidboot.console=ttyO2'
+    dtb_name = None
 
 
 class AndroidSnowballSdConfig(AndroidBoardConfig, SnowballSdConfig):
     boot_script = 'boot.scr'
     initrd_addr = '0x05000000'
     extra_boot_args_options = (
-        'earlyprintk mem=128M@0 mali.mali_mem=32M@128M hwmem=168M@160M mem=48M@328M mem_issw=1M@383M mem=640M@384M vmalloc=256M')
+        'earlyprintk mem=128M@0 mali.mali_mem=64M@128M hwmem=168M@192M mem=22M@360M mem_issw=1M@383M mem=640M@384M vmalloc=256M')
     _extra_serial_opts = 'console=ttyAMA2,115200n8'
     android_specific_args = 'init=/init androidboot.console=ttyAMA2'
     # Snowball uses a custom uboot:
@@ -198,20 +204,23 @@ class AndroidSnowballSdConfig(AndroidBoardConfig, SnowballSdConfig):
     # needs uImage/uInitrd prefixed with /
     fatload_command = 'fat load'
     uimage_path = '/'
+    dtb_name = None
 
 
 class AndroidSnowballEmmcConfig(AndroidBoardConfig, SnowballEmmcConfig):
     boot_script = 'boot.scr'
     initrd_addr = '0x05000000'
     extra_boot_args_options = (
-        'earlyprintk mem=128M@0 mali.mali_mem=32M@128M hwmem=168M@160M mem=48M@328M mem_issw=1M@383M mem=640M@384M vmalloc=256M')
+        'earlyprintk mem=128M@0 mali.mali_mem=64M@128M hwmem=168M@192M mem=22M@360M mem_issw=1M@383M mem=640M@384M vmalloc=256M')
     _extra_serial_opts = 'console=ttyAMA2,115200n8'
     android_specific_args = 'init=/init androidboot.console=ttyAMA2'
+    mmc_option = '0:2'
     # Snowball uses a custom uboot:
     # it uses "fat load" instead of fatload and
     # needs uImage/uInitrd prefixed with /
     fatload_command = 'fat load'
     uimage_path = '/'
+    dtb_name = None
 
     @classmethod
     def get_sfdisk_cmd(cls, should_align_boot_part=False):
@@ -230,6 +239,36 @@ class AndroidSnowballEmmcConfig(AndroidBoardConfig, SnowballEmmcConfig):
         return '%s,%s,0xDA\n%s' % (
             loader_start, loader_len, command)
 
+    @classmethod
+    def populate_raw_partition(cls, media, boot_dir):
+        # To avoid adding a Snowball specific command line option, we assume
+        # that the user already has unpacked the startfiles to ./startupfiles
+        config_files_dir = cls.snowball_config(boot_dir)
+        assert os.path.exists(config_files_dir), (
+            "You need to unpack the Snowball startupfiles to the directory "
+            "'startupfiles' in your current working directory. See "
+            "igloocommunity.org for more information.")
+        # We copy the u-boot files from the unpacked boot.tar.bz2
+        # and put it with the startfiles.
+        boot_files = ['u-boot.bin']
+        for boot_file in boot_files:
+            cmd_runner.run(['cp', os.path.join(boot_dir, 'boot', boot_file),
+                            config_files_dir], as_root=True).wait()
+        super(AndroidSnowballEmmcConfig, cls).populate_raw_partition(
+            media, boot_dir)
+
+    @classmethod
+    def snowball_config(cls, chroot_dir):        
+        # The user is expected to have unpacked the startupfiles to this subdir
+        # of their working dir.
+        return os.path.join('.', 'startupfiles')
+
+    @classproperty
+    def delete_startupfiles(cls):
+        # The startupfiles will have been unpacked to the user's working dir
+        # and should not be deleted after they have been installed.
+        return False
+
 
 class AndroidMx53LoCoConfig(AndroidBoardConfig, Mx53LoCoConfig):
     extra_boot_args_options = (
@@ -238,6 +277,7 @@ class AndroidMx53LoCoConfig(AndroidBoardConfig, Mx53LoCoConfig):
         Mx53LoCoConfig.serial_tty)
     android_specific_args = 'init=/init androidboot.console=%s' % (
         Mx53LoCoConfig.serial_tty)
+    dtb_name = None
 
     @classmethod
     def get_sfdisk_cmd(cls, should_align_boot_part=False):
@@ -256,7 +296,17 @@ class AndroidMx53LoCoConfig(AndroidBoardConfig, Mx53LoCoConfig):
         install_mx5_boot_loader(os.path.join(boot_device_or_file, "u-boot.imx"), boot_partition, cls.LOADER_MIN_SIZE_S)
 
 
+class AndroidMx6QSabreliteConfig(AndroidMx53LoCoConfig):
+    uboot_flavor = 'mx6qsabrelite'
+    kernel_addr = '0x10000000'
+    initrd_addr = '0x12000000'
+    load_addr = '0x10008000'
+    dtb_addr = '0x11ff0000'
+    dtb_name = 'board.dtb'
+
+
 class AndroidSamsungConfig(AndroidBoardConfig):
+    dtb_name = None
 
     @classmethod
     def get_sfdisk_cmd(cls, should_align_boot_part=False):
@@ -278,16 +328,19 @@ class AndroidSamsungConfig(AndroidBoardConfig):
 class AndroidSMDKV310Config(AndroidSamsungConfig, SMDKV310Config):
     _extra_serial_opts = 'console=tty0 console=ttySAC1,115200n8'
     android_specific_args = 'init=/init androidboot.console=ttySAC1'
+    dtb_name = None
 
 
 class AndroidOrigenConfig(AndroidSamsungConfig, OrigenConfig):
     _extra_serial_opts = 'console=tty0 console=ttySAC2,115200n8'
     android_specific_args = 'init=/init androidboot.console=ttySAC2'
+    dtb_name = None
 
 
 class AndroidVexpressA9Config(AndroidBoardConfig, VexpressA9Config):
     _extra_serial_opts = 'console=tty0 console=ttyAMA0,38400n8'
     android_specific_args = 'init=/init androidboot.console=ttyAMA0'
+    dtb_name = None
 
 
 android_board_configs = {
@@ -298,6 +351,7 @@ android_board_configs = {
     'smdkv310': AndroidSMDKV310Config,
     'mx53loco': AndroidMx53LoCoConfig,
     'iMX53': AndroidMx53LoCoConfig,
+    'mx6qsabrelite': AndroidMx6QSabreliteConfig,
     'origen': AndroidOrigenConfig,
     'vexpress-a9': AndroidVexpressA9Config,
     }
