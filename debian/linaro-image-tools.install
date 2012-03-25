@@ -1,6 +1,4 @@
 linaro-android-media-create usr/bin
-linaro-fetch-image usr/bin
-linaro-fetch-image-ui usr/bin
 linaro-hwpack-create usr/bin
 linaro-hwpack-install usr/bin
 linaro-hwpack-replace usr/bin

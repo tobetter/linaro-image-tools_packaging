@@ -1,3 +1,15 @@
+linaro-image-tools (2012.03-0ubuntu1~linaro1) oneiric; urgency=low
+
+  * New upstream release:
+    - linaro-fetch-image split into its own source package.
+  * Update debian/control:
+    - drop linaro-fetch-image dependencies: python-beautifulsoup,
+      python-wxgtk2.8, python-xdg, python-yaml.
+  * Update debian/linaro-image-tools.install:
+    - drop linaro-fetch-image and linaro-fetch-image-ui.
+
+ -- Fathi Boudra <fathi.boudra@linaro.org>  Sun, 25 Mar 2012 10:21:30 +0300
+
 linaro-image-tools (2012.02-0ubuntu1~linaro1) oneiric; urgency=low
 
   * New upstream release.
