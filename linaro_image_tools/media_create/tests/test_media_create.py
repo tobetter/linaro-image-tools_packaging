@@ -1285,8 +1285,8 @@ class TestPopulateRawPartitionAndroid(TestCaseWithFixtures):
         self.assertEqual(expected_commands, fixture.mock.commands_executed)
         self.assertEqual(expected, self.funcs_calls)
 
-    def test_vexpress_a9_raw(self):
-        self.populate_raw_partition(android_boards.AndroidVexpressA9Config)
+    def test_vexpress_raw(self):
+        self.populate_raw_partition(android_boards.AndroidVexpressConfig)
         expected = []
         self.assertEqual(expected, self.funcs_calls)
 
@@ -1443,7 +1443,7 @@ class TestGetSfdiskCmd(TestCase):
         self.assertEqual(
             '63,270272,0x0E,*\n270336,1048576,L\n1318912,524288,L\n'
             '1843200,-,E\n1843200,1048576,L\n2891776,,,-',
-            android_boards.AndroidVexpressA9Config.get_sfdisk_cmd())
+            android_boards.AndroidVexpressConfig.get_sfdisk_cmd())
 
     def test_mx5_android(self):
         self.assertEqual(
@@ -1775,7 +1775,7 @@ class TestGetBootCmdAndroid(TestCase):
                         'rootwait ro earlyprintk '
                         'mem=128M@0 mali.mali_mem=64M@128M hwmem=168M@192M '
                         'mem=22M@360M mem_issw=1M@383M mem=640M@384M '
-                        'vmalloc=256M init=/init androidboot.console=ttyAMA2',
+                        'vmalloc=300M init=/init androidboot.console=ttyAMA2',
             'bootcmd': 'fat load mmc 1:1 0x00100000 /uImage; '
                        'fat load mmc 1:1 0x05000000 /uInitrd; '
                        'bootm 0x00100000 0x05000000'}
@@ -1788,7 +1788,7 @@ class TestGetBootCmdAndroid(TestCase):
                         'rootwait ro earlyprintk '
                         'mem=128M@0 mali.mali_mem=64M@128M hwmem=168M@192M '
                         'mem=22M@360M mem_issw=1M@383M mem=640M@384M '
-                        'vmalloc=256M init=/init androidboot.console=ttyAMA2',
+                        'vmalloc=300M init=/init androidboot.console=ttyAMA2',
             'bootcmd': 'fat load mmc 0:2 0x00100000 /uImage; '
                        'fat load mmc 0:2 0x05000000 /uInitrd; '
                        'bootm 0x00100000 0x05000000'}
@@ -1805,7 +1805,7 @@ class TestGetBootCmdAndroid(TestCase):
         self.assertBootEnv(
             android_boards.AndroidOrigenConfig, expected)
 
-    def test_android_vexpress_a9(self):
+    def test_android_vexpress(self):
         expected = {
             'bootargs': 'console=tty0 console=ttyAMA0,38400n8 '
                         'rootwait ro init=/init androidboot.console=ttyAMA0',
@@ -1813,7 +1813,7 @@ class TestGetBootCmdAndroid(TestCase):
                        'fatload mmc 0:1 0x62000000 uInitrd; '
                        'bootm 0x60000000 0x62000000'}
         self.assertBootEnv(
-            android_boards.AndroidVexpressA9Config, expected)
+            android_boards.AndroidVexpressConfig, expected)
 
     def test_android_mx5(self):
         expected = {

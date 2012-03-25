@@ -89,6 +89,11 @@ cleanup() {
   # Ensure our temp dir and apt sources are removed.
   echo -n "Cleaning up ..."
   rm -rf $TEMP_DIR
+  rm -f /usr/sbin/policy-rc.d
+  mv -f /sbin/start-stop-daemon.REAL /sbin/start-stop-daemon
+  if [ -x /sbin/initctl.REAL ]; then
+    mv -f /sbin/initctl.REAL /sbin/initctl
+  fi
   $sudo apt-get update -qq
   echo "Done"
 }
@@ -147,6 +152,28 @@ for filename in $(ls "${HWPACK_DIR}"/sources.list.d.gpg/); do
   file="${HWPACK_DIR}"/sources.list.d.gpg/$filename
   $sudo apt-key add $file
 done
+
+# Prevent daemons to start in the chroot
+echo "exit 101" > /usr/sbin/policy-rc.d
+chmod a+x /usr/sbin/policy-rc.d
+
+mv -f /sbin/start-stop-daemon /sbin/start-stop-daemon.REAL
+cat > /sbin/start-stop-daemon << EOF
+#!/bin/sh
+
+echo "Warning: Fake start-stop-daemon called, doing nothing"
+EOF
+chmod 755 /sbin/start-stop-daemon
+
+if [ -x /sbin/initctl ]; then
+  mv -f /sbin/initctl /sbin/initctl.REAL
+  cat > /sbin/initctl << EOF
+#!/bin/sh
+
+echo "Warning: Fake initctl called, doing nothing"
+EOF
+  chmod 755 /sbin/initctl
+fi
 
 # Add one extra apt source for the packages included in the hwpack and make
 # sure it's the first on the list of sources so that it gets precedence over
