@@ -1,3 +1,9 @@
+linaro-image-tools (2012.03-0ubuntu1~linaro2) precise; urgency=low
+
+  * Update debian/rules: fix python shebang.
+
+ -- Fathi Boudra <fathi.boudra@linaro.org>  Fri, 20 Apr 2012 10:59:10 +0300
+
 linaro-image-tools (2012.03-0ubuntu1~linaro1) oneiric; urgency=low
 
   * New upstream release:
