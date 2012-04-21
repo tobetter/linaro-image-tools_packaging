@@ -1,3 +1,9 @@
+linaro-image-tools (2012.04-0ubuntu1~linaro1) precise; urgency=low
+
+  * New upstream release.
+
+ -- Fathi Boudra <fathi.boudra@linaro.org>  Sat, 21 Apr 2012 19:43:09 +0300
+
 linaro-image-tools (2012.03-0ubuntu1~linaro2) precise; urgency=low
 
   * Update debian/rules: fix python shebang.
