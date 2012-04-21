@@ -37,10 +37,12 @@ import shutil
 import string
 import logging
 
+from parted import Device
+
 from linaro_image_tools import cmd_runner
 
 from linaro_image_tools.media_create.partitions import (
-    partition_mounted, SECTOR_SIZE)
+    partition_mounted, SECTOR_SIZE, register_loopback)
 
 
 KERNEL_GLOB = 'vmlinuz-*-%(kernel_flavor)s'
@@ -204,6 +206,7 @@ class BoardConfig(object):
     env_dd = False
     fatload_command = 'fatload'
     mmc_option = '0:1'
+    mmc_device_id = 0
     mmc_part_offset = 0
     uimage_path = ''
     fat_size = 32
@@ -345,6 +348,7 @@ class BoardConfig(object):
 
             cls.mmc_option = cls.get_metadata_field('mmc_id')
             if cls.mmc_option is not None:
+                cls.mmc_device_id = int(cls.mmc_option.split(':')[0])
                 cls.mmc_part_offset = int(cls.mmc_option.split(':')[1]) - 1
 
             boot_min_size = cls.get_metadata_field('boot_min_size')
@@ -1335,6 +1339,33 @@ class VexpressA9Config(VexpressConfig):
     pass
 
 
+class FastModelConfig(BoardConfig):
+    supports_writing_to_mmc = False
+      
+    @classmethod
+    def _get_bootcmd(cls, d_img_data):
+        """Get the bootcmd for FastModel.
+
+        We override this as we don't do uboot.
+        """
+        return ""
+
+    @classmethod
+    def _make_boot_files_v2(cls, boot_env, chroot_dir, boot_dir,
+                         boot_device_or_file, k_img_data, i_img_data,
+                         d_img_data):
+        logger = logging.getLogger("linaro_image_tools")
+        logger.info("WTF=%s." % boot_device_or_file )
+        output_dir=os.path.dirname(boot_device_or_file)
+        cmd = [ "cp", "-v",  _get_file_matching("%s/boot/img.axf" % chroot_dir), output_dir ]
+        proc = cmd_runner.run(cmd, as_root=True)
+        proc.wait()
+        cmd = [ "cp", "-v",  k_img_data, i_img_data, d_img_data, output_dir ]
+        proc = cmd_runner.run(cmd, as_root=True)
+        proc.wait()
+        return
+
+
 class SamsungConfig(BoardConfig):
     @classproperty
     def extra_serial_opts(cls):
@@ -1472,6 +1503,67 @@ class OrigenConfig(SamsungConfig):
     mmc_part_offset = 1
     mmc_option = '0:2'
 
+class I386Config(BoardConfig):
+    # define serial
+    serial_tty = 'ttyS0'
+    _extra_serial_opts = 'console=tty0 console=%s,115200n8'
+    _live_serial_opts = 'serialtty=%s'
+
+    # define kernel image
+    kernel_flavors = ['generic']
+
+    # define bootloader
+    BOOTLOADER_CMD = 'grub-install'
+    BOOTLOADER_CFG_FILE = 'grub/grub.cfg'
+    BOOTLOADER_CFG = """
+    set timeout=3
+    set default='0'
+    menuentry 'core' {
+            linux /%s root=LABEL=rootfs ro %s
+            initrd /%s
+    }"""
+
+    @classproperty
+    def live_serial_opts(cls):
+        return cls._live_serial_opts % cls.serial_tty
+
+    @classproperty
+    def extra_serial_opts(cls):
+        return cls._extra_serial_opts % cls.serial_tty
+
+    @classmethod
+    def _make_boot_files(cls, boot_env, chroot_dir, boot_dir,
+                         boot_device_or_file, k_img_data, i_img_data,
+                         d_img_data):
+        # XXX: delete this method when hwpacks V1 can die
+        assert cls.hwpack_format == HardwarepackHandler.FORMAT_1
+
+        # copy image and init into boot partition
+        cmd_runner.run(['cp', k_img_data, boot_dir], as_root=True).wait()
+        cmd_runner.run(['cp', i_img_data, boot_dir], as_root=True).wait()
+
+        # create a loop device with the whole image
+        device = Device(boot_device_or_file)
+        img_size = device.getLength() * SECTOR_SIZE
+        img_loop = register_loopback(boot_device_or_file, 0, img_size)
+        
+        # install bootloader
+        cmd_runner.run([cls.BOOTLOADER_CMD, '--boot-directory=%s' % boot_dir,
+            '--modules', 'part_msdos', img_loop],
+            as_root=True).wait()
+
+        # generate loader config file
+        loader_config = cls.BOOTLOADER_CFG % (os.path.basename(k_img_data),
+            cls.extra_serial_opts, os.path.basename(i_img_data))
+
+        _, tmpfile = tempfile.mkstemp()
+        atexit.register(os.unlink, tmpfile)
+        with open(tmpfile, 'w') as fd:
+            fd.write(loader_config)
+
+        cmd_runner.run(['cp', tmpfile, os.path.join(boot_dir,
+            cls.BOOTLOADER_CFG_FILE)], as_root=True).wait()
+
 
 board_configs = {
     'beagle': BeagleConfig,
@@ -1479,6 +1571,7 @@ board_configs = {
     'panda': PandaConfig,
     'vexpress': VexpressConfig,
     'vexpress-a9': VexpressA9Config,
+    'fastmodel': FastModelConfig,
     'ux500': Ux500Config,
     'snowball_sd': SnowballSdConfig,
     'snowball_emmc': SnowballEmmcConfig,
@@ -1490,6 +1583,7 @@ board_configs = {
     'smdkv310': SMDKV310Config,
     'origen': OrigenConfig,
     'mx6qsabrelite': BoardConfig,
+    'i386': I386Config,
     }
 
 
