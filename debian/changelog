@@ -1,3 +1,9 @@
+linaro-image-tools (2012.05-0ubuntu1~linaro2) precise; urgency=low
+
+  * Raise python-testtools dependency to >> 0.9.11.
+
+ -- Fathi Boudra <fathi.boudra@linaro.org>  Wed, 20 Jun 2012 15:47:09 +0300
+
 linaro-image-tools (2012.05-0ubuntu1~linaro1) precise; urgency=low
 
   * New upstream release.
