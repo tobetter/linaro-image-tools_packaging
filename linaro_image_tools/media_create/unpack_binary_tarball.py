@@ -3,7 +3,7 @@
 # Author: Guilherme Salgado <guilherme.salgado@linaro.org>
 #
 # This file is part of Linaro Image Tools.
-# 
+#
 # Linaro Image Tools is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -26,6 +26,7 @@ def unpack_android_binary_tarball(tarball, unpack_dir, as_root=True):
         as_root=as_root)
     proc.wait()
     return proc.returncode
+
 
 def unpack_binary_tarball(tarball, unpack_dir, as_root=True):
     proc = cmd_runner.run(

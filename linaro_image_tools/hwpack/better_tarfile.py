@@ -8,12 +8,12 @@
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
 # of the License, or (at your option) any later version.
-# 
+#
 # Linaro Image Tools is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Linaro Image Tools; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
@@ -30,6 +30,7 @@ in adding paths to the tarfile that aren't present on the filesystem,
 with the ability to specify file content as strings, and provide
 default values for the mtime, uid, etc. of the created paths.
 """
+
 
 @contextmanager
 def writeable_tarfile(backing_file, mode="w", **kwargs):

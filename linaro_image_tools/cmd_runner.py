@@ -3,7 +3,7 @@
 # Author: Guilherme Salgado <guilherme.salgado@linaro.org>
 #
 # This file is part of Linaro Image Tools.
-# 
+#
 # Linaro Image Tools is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -72,7 +72,7 @@ class Popen(subprocess.Popen):
 
     def __init__(self, args, env=None, **kwargs):
         self._my_args = args
-        self.except_on_cmd_fail=True
+        self.except_on_cmd_fail = True
         if env is None:
             env = os.environ.copy()
         env['LC_ALL'] = 'C'

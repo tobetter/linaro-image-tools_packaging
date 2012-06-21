@@ -24,6 +24,7 @@ import sys
 import logging
 import tempfile
 import tarfile
+from StringIO import StringIO
 
 from linaro_image_tools import cmd_runner, utils
 from linaro_image_tools.testing import TestCaseWithFixtures
@@ -33,18 +34,20 @@ from linaro_image_tools.tests.fixtures import (
     MockSomethingFixture,
     )
 from linaro_image_tools.utils import (
+    IncompatibleOptions,
+    InvalidHwpackFile,
+    UnableToFindPackageProvidingCommand,
+    additional_option_checks,
+    check_file_integrity_and_log_errors,
     ensure_command,
     find_command,
     install_package_providing,
-    preferred_tools_dir,
-    UnableToFindPackageProvidingCommand,
-    verify_file_integrity,
-    check_file_integrity_and_log_errors,
     path_in_tarfile_exists,
-    IncompatibleOptions,
+    preferred_tools_dir,
     prep_media_path,
-    additional_option_checks,
+    verify_file_integrity,
     )
+
 
 sudo_args = " ".join(cmd_runner.SUDO_ARGS)
 
@@ -85,7 +88,6 @@ class TestVerifyFileIntegrity(TestCaseWithFixtures):
         def wait(self):
             return self.returncode
 
-
     class MockCmdRunnerPopen_sha1sum_fail(object):
         def __call__(self, cmd, *args, **kwargs):
             self.returncode = 0
@@ -98,7 +100,6 @@ class TestVerifyFileIntegrity(TestCaseWithFixtures):
 
         def wait(self):
             return self.returncode
-
 
     class MockCmdRunnerPopen_wait_fails(object):
         def __call__(self, cmd, *args, **kwargs):
@@ -136,7 +137,7 @@ class TestVerifyFileIntegrity(TestCaseWithFixtures):
                                                    signature_filename),
              'sha1sum -c %s' % hash_filename],
             fixture.mock.commands_executed)
-        
+
     def test_verify_files_returns_files(self):
         self.useFixture(MockSomethingFixture(cmd_runner, 'Popen',
                                              self.MockCmdRunnerPopen()))
@@ -194,6 +195,7 @@ class TestVerifyFileIntegrity(TestCaseWithFixtures):
         self.assertFalse(result)
         logging.getLogger().setLevel(logging.WARNING)
 
+
 class TestEnsureCommand(TestCaseWithFixtures):
 
     install_pkg_providing_called = False
@@ -248,19 +250,46 @@ class TestFindCommand(TestCaseWithFixtures):
 
 class TestInstallPackageProviding(TestCaseWithFixtures):
 
-    def test_found_package(self):
-        self.useFixture(MockSomethingFixture(
-            sys, 'stdout', open('/dev/null', 'w')))
-        fixture = self.useFixture(MockCmdRunnerPopenFixture())
+    # This is the package we need to fake the installation of, it is a
+    # slightly changed version of 'apt-get -s install' output.
+    # It is used as an argument to MockCmdRunnerPopenFixture in order to
+    # pass a string that should be expected as output from the command that
+    # is being executed.
+    output_string = 'Inst dosfstools (3.0.12-1ubuntu1 Ubuntu:12.04)'
+
+    def test_package_installation_accepted(self):
+        self.useFixture(MockSomethingFixture(sys,
+                                             'stdout',
+                                             open('/dev/null', 'w')))
+        # We need this since we are getting user input via raw_input
+        # and we need a 'Y' to proceed with the operations.
+        self.useFixture(MockSomethingFixture(sys,
+                                             'stdin',
+                                             StringIO('Y')))
+        fixture = self.useFixture(
+            MockCmdRunnerPopenFixture(self.output_string))
         install_package_providing('mkfs.vfat')
         self.assertEqual(
-            ['%s apt-get --yes install dosfstools' % sudo_args],
-            fixture.mock.commands_executed)
+                         ['apt-get -s install dosfstools',
+                          '%s apt-get --yes install dosfstools' %
+                          sudo_args],
+                         fixture.mock.commands_executed)
+
+    def test_package_installation_refused(self):
+        self.useFixture(MockSomethingFixture(sys,
+                                             'stdout',
+                                             open('/dev/null', 'w')))
+        # We need this since we are getting user input via raw_input
+        # and we need a 'n' to mimic a refused package installation.
+        self.useFixture(MockSomethingFixture(sys,
+                                             'stdin',
+                                             StringIO('n')))
+        self.useFixture(MockCmdRunnerPopenFixture(self.output_string))
+        self.assertRaises(SystemExit, install_package_providing, 'mkfs.vfat')
 
     def test_not_found_package(self):
-        self.assertRaises(
-            UnableToFindPackageProvidingCommand,
-            install_package_providing, 'mkfs.lean')
+        self.assertRaises(UnableToFindPackageProvidingCommand,
+                          install_package_providing, 'mkfs.lean')
 
 
 class Args():
@@ -286,7 +315,8 @@ class TestPrepMediaPath(TestCaseWithFixtures):
                                               device="testdevice",
                                               board="testboard")))
 
-class TestPrepMediaPath(TestCaseWithFixtures):
+
+class TestAdditionalOptionChecks(TestCaseWithFixtures):
 
     def test_additional_option_checks(self):
         self.useFixture(MockSomethingFixture(os.path, 'abspath', lambda x: x))
@@ -303,3 +333,44 @@ class TestPrepMediaPath(TestCaseWithFixtures):
                                device="testdevice",
                                board="testboard"))
         sys.argv.remove("--mmc")
+
+
+class TestHwpackIsFile(TestCaseWithFixtures):
+
+    """Testing '--hwpack' option only allows regular files."""
+
+    def test_hwpack_is_file(self):
+        class HwPackArgs:
+            def __init__(self, hwpack):
+                self.hwpacks = [hwpack]
+                self.directory = None
+
+        try:
+            tmpdir = tempfile.mkdtemp()
+            self.assertRaises(InvalidHwpackFile, additional_option_checks,
+                              HwPackArgs(hwpack=tmpdir))
+        finally:
+            os.rmdir(tmpdir)
+
+    def test_hwpacks_are_files(self):
+
+        """
+        Tests that multiple hwpacks are regular files.
+
+        Tests against a file and a directory, to avoid circumstances in which
+        'additional_option_checks' is tweaked.
+        """
+
+        class HwPacksArgs:
+            def __init__(self, hwpacks):
+                self.hwpacks = hwpacks
+                self.directory = None
+
+        try:
+            tmpdir = tempfile.mkdtemp()
+            _, tmpfile = tempfile.mkstemp()
+            self.assertRaises(InvalidHwpackFile, additional_option_checks,
+                              HwPacksArgs([tmpfile, tmpdir]))
+        finally:
+            os.rmdir(tmpdir)
+            os.remove(tmpfile)
