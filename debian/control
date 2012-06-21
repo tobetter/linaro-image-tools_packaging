@@ -14,7 +14,7 @@ Build-Depends: apt-utils,
                python-distutils-extra,
                python-parted,
                python-support,
-               python-testtools (>> 0.9.11),
+               python-testtools (>= 0.9.12),
                u-boot-tools | uboot-mkimage
 Standards-Version: 3.9.3
 Maintainer: Linaro Packagers <linaro-pkg@lists.launchpad.net>
