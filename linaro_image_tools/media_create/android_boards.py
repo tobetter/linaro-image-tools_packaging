@@ -189,12 +189,14 @@ class AndroidBeagleConfig(AndroidOmapConfig, BeagleConfig):
 
 
 class AndroidPandaConfig(AndroidOmapConfig, PandaConfig):
+    uboot_flavor = 'omap4_panda'
+    dtb_addr = '0x815f0000'
+    dtb_name = 'board.dtb'
     _extra_serial_opts = 'console=ttyO2,115200n8'
     extra_boot_args_options = (
         'earlyprintk fixrtc nocompcache vram=48M '
         'omapfb.vram=0:24M,1:24M mem=456M@0x80000000 mem=512M@0xA0000000')
     android_specific_args = 'init=/init androidboot.console=ttyO2'
-    dtb_name = None
 
 
 class AndroidSnowballSdConfig(AndroidBoardConfig, SnowballSdConfig):
@@ -202,7 +204,7 @@ class AndroidSnowballSdConfig(AndroidBoardConfig, SnowballSdConfig):
     initrd_addr = '0x05000000'
     extra_boot_args_options = (
         'earlyprintk mem=128M@0 mali.mali_mem=64M@128M hwmem=168M@192M '
-        'mem=22M@360M mem_issw=1M@383M mem=640M@384M vmalloc=300M')
+        'mem=22M@360M mem_issw=1M@383M mem=640M@384M vmalloc=500M')
     _extra_serial_opts = 'console=ttyAMA2,115200n8'
     android_specific_args = 'init=/init androidboot.console=ttyAMA2'
     dtb_name = None
@@ -213,7 +215,7 @@ class AndroidSnowballEmmcConfig(AndroidBoardConfig, SnowballEmmcConfig):
     initrd_addr = '0x05000000'
     extra_boot_args_options = (
         'earlyprintk mem=128M@0 mali.mali_mem=64M@128M hwmem=168M@192M '
-        'mem=22M@360M mem_issw=1M@383M mem=640M@384M vmalloc=300M')
+        'mem=22M@360M mem_issw=1M@383M mem=640M@384M vmalloc=500M')
     _extra_serial_opts = 'console=ttyAMA2,115200n8'
     android_specific_args = 'init=/init androidboot.console=ttyAMA2'
     mmc_option = '0:2'
