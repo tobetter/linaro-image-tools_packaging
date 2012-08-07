@@ -1,3 +1,10 @@
+linaro-image-tools (2012.07-0ubuntu1~linaro1) precise; urgency=low
+
+  * New upstream release.
+  * Update debian/control: re-add python-yaml to dependencies.
+
+ -- Fathi Boudra <fathi.boudra@linaro.org>  Tue, 07 Aug 2012 18:49:51 +0300
+
 linaro-image-tools (2012.06-0ubuntu1~linaro1) precise; urgency=low
 
   * New upstream release.
