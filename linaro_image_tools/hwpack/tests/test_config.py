@@ -458,13 +458,13 @@ class ConfigTests(TestCase):
         config = self.get_config(self.valid_complete_v2 + self.valid_end)
         config.validate()
         self.assertEqual("usr/lib/u-boot/smdkv310/u-boot.bin",
-                         config.u_boot_file)
+                         config.bootloader_file)
 
     def test_u_boot_package(self):
         config = self.get_config(self.valid_complete_v2 + self.valid_end)
         config.validate()
         self.assertEqual("u-boot-linaro-s5pv310",
-                         config.u_boot_package)
+                         config.bootloader_package)
 
     def test_spl_file(self):
         config = self.get_config(self.valid_complete_v2 + self.valid_end)
@@ -514,7 +514,7 @@ class ConfigTests(TestCase):
         config = self.get_config(self.valid_complete_v2 + self.valid_end)
         config.validate()
         self.assertEqual("Yes",
-                         config.uboot_in_boot_part)
+                         config.bootloader_file_in_boot_part)
 
     def test_spl_package(self):
         config = self.get_config(self.valid_complete_v2 + self.valid_end)

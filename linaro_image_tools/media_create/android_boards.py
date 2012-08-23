@@ -77,10 +77,13 @@ class AndroidBoardConfig(object):
         """
         boot_env = {}
         boot_env["bootargs"] = cls._get_bootargs(consoles)
+        initrd = False
+        if cls.initrd_addr:
+            initrd = True
         # On Android, the DTB file is always built as part of the kernel it
         # comes from - and lives in the same directory in the boot tarball, so
         # here we don't need to pass the whole path to it.
-        boot_env["bootcmd"] = cls._get_bootcmd(cls.dtb_name)
+        boot_env["bootcmd"] = cls._get_bootcmd(initrd, cls.dtb_name)
         return boot_env
 
     @classmethod
@@ -189,7 +192,7 @@ class AndroidBeagleConfig(AndroidOmapConfig, BeagleConfig):
 
 
 class AndroidPandaConfig(AndroidOmapConfig, PandaConfig):
-    uboot_flavor = 'omap4_panda'
+    bootloader_flavor = 'omap4_panda'
     dtb_addr = '0x815f0000'
     dtb_name = 'board.dtb'
     _extra_serial_opts = 'console=ttyO2,115200n8'
@@ -298,7 +301,7 @@ class AndroidMx53LoCoConfig(AndroidBoardConfig, Mx53LoCoConfig):
 
 
 class AndroidMx6QSabreliteConfig(AndroidMx53LoCoConfig):
-    uboot_flavor = 'mx6qsabrelite'
+    bootloader_flavor = 'mx6qsabrelite'
     kernel_addr = '0x10000000'
     initrd_addr = '0x12000000'
     load_addr = '0x10008000'
