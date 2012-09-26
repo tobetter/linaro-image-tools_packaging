@@ -26,6 +26,10 @@ from testtools import TestCase
 from linaro_image_tools.hwpack.config import Config, HwpackConfigError
 from linaro_image_tools.hwpack.hwpack_fields import (
     DEFINED_PARTITION_LAYOUTS,
+    SAMSUNG_BL1_LEN_FIELD,
+    SAMSUNG_BL1_START_FIELD,
+    SAMSUNG_BL2_LEN_FIELD,
+    SAMSUNG_ENV_LEN_FIELD,
 )
 
 
@@ -312,6 +316,23 @@ class ConfigTests(TestCase):
         config.set_bootloader("u_boot")
         config.set_board("panda")
 
+        config._validate_bootloader_file_in_boot_part()
+        self.assertEqual(config.bootloader_file_in_boot_part, "yes")
+
+    def test_multiple_bootloaders(self):
+        config = self.get_config(
+            self.valid_start_v3 +
+            "bootloaders:\n"
+            " u_boot:\n"
+            "  in_boot_part: No\n"
+            " anotherboot:\n"
+            "  in_boot_part: Yes\n")
+
+        config.set_bootloader("u_boot")
+        config._validate_bootloader_file_in_boot_part()
+        self.assertEqual(config.bootloader_file_in_boot_part, "no")
+
+        config.set_bootloader("anotherboot")
         config._validate_bootloader_file_in_boot_part()
         self.assertEqual(config.bootloader_file_in_boot_part, "yes")
 
@@ -779,3 +800,28 @@ class ConfigTests(TestCase):
         self.assertValidationError("Unknown key in metadata: "
                                    "'boards: snowball: foo'",
                                    config._validate_keys)
+
+    def test_valid_samsung_bl1_len_field(self):
+        config = self.get_config(self.valid_start_v3 +
+                                 SAMSUNG_BL1_LEN_FIELD + ': 1\n')
+        self.assertEqual(None, config._validate_keys())
+
+    def test_valid_samsung_bl1_start_field(self):
+        config = self.get_config(self.valid_start_v3 +
+                                 SAMSUNG_BL1_START_FIELD + ': 1\n')
+        self.assertEqual(None, config._validate_keys())
+
+    def test_valid_samsung_bl2_len_field(self):
+        config = self.get_config(self.valid_start_v3 +
+                                 SAMSUNG_BL2_LEN_FIELD + ': 1\n')
+        self.assertEqual(None, config._validate_keys())
+
+    def test_valid_samsung_env_len_field(self):
+        config = self.get_config(self.valid_start_v3 +
+                                 SAMSUNG_ENV_LEN_FIELD + ': 1\n')
+        self.assertEqual(None, config._validate_keys())
+
+    def test_samsung_field_wrong(self):
+        config = self.get_config(self.valid_start_v3 +
+                                 'samsung_wrong_field: 1\n')
+        self.assertRaises(HwpackConfigError, config._validate_keys)

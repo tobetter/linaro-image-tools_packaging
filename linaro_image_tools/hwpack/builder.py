@@ -37,23 +37,13 @@ from linaro_image_tools.hwpack.packages import (
     )
 
 from linaro_image_tools.hwpack.hwpack_fields import (
-    FILE_FIELD,
     PACKAGE_FIELD,
-    SPL_FILE_FIELD,
     SPL_PACKAGE_FIELD,
 )
 
 # The fields that hold packages to be installed.
 PACKAGE_FIELDS = [PACKAGE_FIELD, SPL_PACKAGE_FIELD]
-# The fields that hold values that should be reset to newly calculated ones.
-# The values of the dictionary are the fields whose values should be reset.
-FIELDS_TO_CHANGE = {PACKAGE_FIELD: FILE_FIELD,
-                    SPL_PACKAGE_FIELD: SPL_FILE_FIELD}
-
-
 logger = logging.getLogger(__name__)
-
-
 LOCAL_ARCHIVE_LABEL = 'hwpack-local'
 
 
@@ -74,19 +64,30 @@ class PackageUnpacker(object):
         if self.tempdir is not None and os.path.exists(self.tempdir):
             shutil.rmtree(self.tempdir)
 
+    def get_path(self, package_file_name, file_name=''):
+        "Get package or file path in unpacker tmp dir."
+        package_dir = os.path.basename(package_file_name)
+        return os.path.join(self.tempdir, package_dir, file_name)
+
     def unpack_package(self, package_file_name):
         # We could extract only a single file, but since dpkg will pipe
         # the entire package through tar anyway we might as well extract all.
-        p = cmd_runner.run(["tar", "-C", self.tempdir, "-xf", "-"],
+        unpack_dir = self.get_path(package_file_name)
+        if not os.path.isdir(unpack_dir):
+            os.mkdir(unpack_dir)
+        p = cmd_runner.run(["tar", "-C", unpack_dir, "-xf", "-"],
                            stdin=subprocess.PIPE)
         cmd_runner.run(["dpkg", "--fsys-tarfile", package_file_name],
                        stdout=p.stdin).communicate()
         p.communicate()
 
     def get_file(self, package, file):
+        # File path passed here must not be absolute, or file from
+        # real filesystem will be referenced.
+        assert file and file[0] != '/'
         self.unpack_package(package)
         logger.debug("Unpacked package %s." % package)
-        temp_file = os.path.join(self.tempdir, file)
+        temp_file = self.get_path(package, file)
         assert os.path.exists(temp_file), "The file '%s' was " \
             "not found in the package '%s'." % (file, package)
         return temp_file
@@ -94,10 +95,10 @@ class PackageUnpacker(object):
 
 class HardwarePackBuilder(object):
 
-    def __init__(self, config_path, version, local_debs):
+    def __init__(self, config_path, version, local_debs, out_name=None):
         try:
             with open(config_path) as fp:
-                self.config = Config(fp)
+                self.config = Config(fp, allow_unset_bootloader=True)
         except IOError, e:
             if e.errno == errno.ENOENT:
                 raise ConfigFileMissing(config_path)
@@ -109,6 +110,8 @@ class HardwarePackBuilder(object):
         self.package_unpacker = None
         self.hwpack = None
         self.packages = None
+        self.packages_added_to_hwpack = []
+        self.out_name = out_name
 
     def find_fetched_package(self, packages, wanted_package_name):
         wanted_package = None
@@ -122,8 +125,13 @@ class HardwarePackBuilder(object):
         return wanted_package
 
     def add_file_to_hwpack(self, package, wanted_file, target_path):
+        if (package.name, wanted_file) in self.packages_added_to_hwpack:
+            # Don't bother adding the same package more than once.
+            return
+
         tempfile_name = self.package_unpacker.get_file(
             package.filepath, wanted_file)
+        self.packages_added_to_hwpack.append((package.name, target_path))
         return self.hwpack.add_file(target_path, tempfile_name)
 
     def find_bootloader_packages(self, bootloaders_config):
@@ -142,40 +150,72 @@ class HardwarePackBuilder(object):
         # Eliminate duplicates.
         return list(set(boot_packages))
 
-    def _set_new_values(self, config_dictionary):
-        """Loop through the bootloaders sections of a hwpack, also from the
-        boards section, changing the necessary values with the newly calculated
-        ones.
+    def do_extract_file(self, package, source_path, dest_path):
+        """Extract specified file from package to dest_path."""
+        package_ref = self.find_fetched_package(self.packages, package)
+        return self.add_file_to_hwpack(package_ref, source_path, dest_path)
 
-        :param config_dictionary: The dictionary from the Config we need to
-                                    look into.
-        """
-        remove_packages = []
-        for key, value in config_dictionary.iteritems():
-            if isinstance(value, dict):
-                self._set_new_values(value)
-            else:
-                if key in FIELDS_TO_CHANGE.keys():
-                    if key == PACKAGE_FIELD:
-                        # Need to use the correct path for the packages.
-                        path = self.hwpack.U_BOOT_DIR
-                    else:
-                        path = self.hwpack.SPL_DIR
-                    change_field = FIELDS_TO_CHANGE.get(key)
-                    boot_package = value
-                    boot_file = config_dictionary.get(change_field)
-                    if boot_package is not None and boot_file is not None:
-                        package = self.find_fetched_package(
-                                    self.packages,
-                                    boot_package)
-                        file_to_add = self.add_file_to_hwpack(
-                                            package, boot_file, path)
-                        config_dictionary[change_field] = file_to_add
-                        remove_packages.append(package)
-        # Clean up duplicates.
-        for package in remove_packages:
-            if package in self.packages:
-                self.packages.remove(package)
+    def do_extract_files(self):
+        """Go through a bootloader config, search for files to extract."""
+        base_dest_path = ""
+        if self.config.board:
+            base_dest_path = self.config.board
+        base_dest_path = os.path.join(base_dest_path, self.config.bootloader)
+        # Extract bootloader file
+        if self.config.bootloader_package and self.config.bootloader_file:
+            dest_path = os.path.join(base_dest_path,
+                            os.path.dirname(self.config.bootloader_file))
+            self.do_extract_file(self.config.bootloader_package,
+                                 self.config.bootloader_file,
+                                 dest_path)
+
+        # Extract SPL file
+        if self.config.spl_package and self.config.spl_file:
+            dest_path = os.path.join(base_dest_path,
+                            os.path.dirname(self.config.spl_file))
+            self.do_extract_file(self.config.spl_package,
+                                 self.config.spl_file,
+                                 dest_path)
+
+    def foreach_boards_and_bootloaders(self, function):
+        """Call function for each board + bootloader combination in metadata"""
+        if self.config.bootloaders is not None:
+            for bootloader in self.config.bootloaders:
+                self.config.set_board(None)
+                self.config.set_bootloader(bootloader)
+                function()
+
+        if self.config.boards is not None:
+            for board in self.config.boards:
+                if self.config.bootloaders is not None:
+                    for bootloader in self.config.bootloaders:
+                        self.config.set_board(board)
+                        self.config.set_bootloader(bootloader)
+                        function()
+
+    def extract_files(self):
+        """Find bootloaders in config that may contain files to extract."""
+        if float(self.config.format.format_as_string) < 3.0:
+            # extract files was introduced in version 3 configurations and is
+            # a null operation for earlier configuration files
+            return
+
+        self.foreach_boards_and_bootloaders(self.do_extract_files)
+
+    def do_find_copy_files_packages(self):
+        """Find packages referenced by copy_files (single board, bootloader)"""
+        copy_files = self.config.bootloader_copy_files
+        if copy_files:
+            self.copy_files_packages.extend(copy_files.keys())
+
+    def find_copy_files_packages(self):
+        """Find all packages referenced by copy_files sections in metadata."""
+        self.copy_files_packages = []
+        self.foreach_boards_and_bootloaders(
+            self.do_find_copy_files_packages)
+        packages = self.copy_files_packages
+        del(self.copy_files_packages)
+        return packages
 
     def build(self):
         for architecture in self.config.architectures:
@@ -186,7 +226,10 @@ class HardwarePackBuilder(object):
             sources = self.config.sources
             with LocalArchiveMaker() as local_archive_maker:
                 self.hwpack.add_apt_sources(sources)
-                sources = sources.values()
+                if sources:
+                    sources = sources.values()
+                else:
+                    sources = []
                 self.packages = self.config.packages[:]
                 # Loop through multiple bootloaders.
                 # In V3 of hwpack configuration, all the bootloaders info and
@@ -198,6 +241,8 @@ class HardwarePackBuilder(object):
                     if self.config.boards is not None:
                         self.packages.extend(self.find_bootloader_packages(
                                                 self.config.boards))
+
+                    self.packages.extend(self.find_copy_files_packages())
                 else:
                     if self.config.bootloader_package is not None:
                         self.packages.append(self.config.bootloader_package)
@@ -224,13 +269,9 @@ class HardwarePackBuilder(object):
                         # On a v3 hwpack, all the values we need to check are
                         # in the bootloaders and boards section, so we loop
                         # through both of them changing what is necessary.
+
                         if self.config.format.format_as_string == '3.0':
-                            if self.config.bootloaders is not None:
-                                self._set_new_values(self.config.bootloaders)
-                                metadata.bootloaders = self.config.bootloaders
-                            if self.config.boards is not None:
-                                self._set_new_values(self.config.boards)
-                                metadata.boards = self.config.boards
+                            self.extract_files()
                         else:
                             bootloader_package = None
                             if self.config.bootloader_file is not None:
@@ -275,9 +316,15 @@ class HardwarePackBuilder(object):
                                     local_package.name)
                         self.hwpack.add_dependency_package(
                                 self.config.packages)
-                        with open(self.hwpack.filename(), 'w') as f:
+                        out_name = self.out_name
+                        if not out_name:
+                            out_name = self.hwpack.filename()
+                        with open(out_name, 'w') as f:
                             self.hwpack.to_file(f)
-                            logger.info("Wrote %s" % self.hwpack.filename())
-                        with open(self.hwpack.filename('.manifest.txt'),
-                                    'w') as f:
+                            logger.info("Wrote %s" % out_name)
+                        manifest_name = os.path.splitext(out_name)[0]
+                        if manifest_name.endswith('.tar'):
+                            manifest_name = os.path.splitext(manifest_name)[0]
+                        manifest_name += '.manifest.txt'
+                        with open(manifest_name, 'w') as f:
                             f.write(self.hwpack.manifest_text())

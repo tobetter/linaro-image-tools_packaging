@@ -60,6 +60,7 @@ WIRELESS_INTERFACES_FIELD = 'wireless_interfaces'
 VERSION_FIELD = 'version'
 
 # Bootloaders specific fields
+COPY_FILES_FIELD = 'copy_files'
 DD_FIELD = 'dd'
 ENV_DD_FIELD = 'env_dd'
 EXTRA_BOOT_OPTIONS_FIELD = 'extra_boot_options'
@@ -128,7 +129,7 @@ hwpack_v3_layout = {
     ROOT_MIN_SIZE_FIELD: None,
     LOADER_MIN_SIZE_FIELD: None,
     SAMSUNG_BL1_LEN_FIELD: None,
-    SAMSUNG_BL1_LEN_FIELD: None,
+    SAMSUNG_BL1_START_FIELD: None,
     SAMSUNG_ENV_LEN_FIELD: None,
     SAMSUNG_BL2_LEN_FIELD: None,
     SNOWBALL_STARTUP_FILES_CONFIG_FIELD: None,
@@ -138,6 +139,7 @@ hwpack_v3_layout = {
             PACKAGE_FIELD: None,
             FILE_FIELD: None,
             IN_BOOT_PART_FIELD: None,
+            COPY_FILES_FIELD: None,
             DD_FIELD: None,
             EXTRA_BOOT_OPTIONS_FIELD: None,
             SPL_PACKAGE_FIELD: None,

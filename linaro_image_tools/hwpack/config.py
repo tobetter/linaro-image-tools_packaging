@@ -21,6 +21,7 @@
 
 import ConfigParser
 from operator import attrgetter
+import os
 import re
 import string
 import yaml
@@ -39,6 +40,7 @@ from hwpack_fields import (
     BOOTLOADERS_FIELD,
     BOOT_MIN_SIZE_FIELD,
     BOOT_SCRIPT_FIELD,
+    COPY_FILES_FIELD,
     DD_FIELD,
     DTB_ADDR_FIELD,
     DTB_FILE_FIELD,
@@ -115,12 +117,43 @@ class Config(object):
     translate_v2_to_v3[BOOTLOADER_IN_BOOT_PART_KEY] = IN_BOOT_PART_FIELD
     BOOTLOADER_DD_KEY = 'u_boot_dd'
     translate_v2_to_v3[BOOTLOADER_DD_KEY] = DD_FIELD
+    last_used_keys = []
+    board = None
 
-    def __init__(self, fp, bootloader=None, board=None):
+    def __init__(self, fp, bootloader=None, board=None,
+                 allow_unset_bootloader=False):
         """Create a Config.
 
         :param fp: a file-like object containing the configuration.
+        :param allow_unset_bootloader: Bool. If you have more than 1 bootloader
+          in the config object and don't set which one to use, accessing
+          bootloader related parameters will throw an exception. By setting
+          this None will be returned instead.
         """
+        # This Config class is used in two places:
+        # 1. Generating hardware packs
+        # 2. Combining a hardware pack with an OS image to create a bootable
+        #    disk image.
+        #
+        # In both cases we are providing a file format independant interface
+        # to configuration data to the rest of Linaro Image Tools.
+        #
+        # In case 1 we want all information to be put in the hardware pack and
+        # there is no possibility of picking a booloader (all bootloaders are
+        # put in the hardware pack and one is picked later). In this case we
+        # don't want to trip up other code by throwing an exception when a
+        # bootloader dependant parameter is queried so we return None. In
+        # reality this information isn't used, but sometimes gets queried by
+        # tests. This flag allows us to keep things simple.
+        #
+        # In case 2 we may have multiple bootloaders specified, but only one
+        # can be used by the OS image so we need to pick one. If a bootloader
+        # isn't specified we want to throw an error when a choice would make a
+        # difference to what is returned when querying the object.
+        #
+        # self.allow_unset_bootloader allows for both modes of operation.
+        self.allow_unset_bootloader = allow_unset_bootloader
+        self.bootloader = None
         obfuscated_e = None
         obfuscated_yaml_e = ""
         try:
@@ -177,6 +210,23 @@ class Config(object):
         """Set board used to look up per-board configuration"""
         self.board = board
 
+    def get_bootloader_list(self):
+        if isinstance(self.bootloaders, dict):
+            # We have a list of bootloaders in the expected format
+            return self.bootloaders.keys()
+        return []
+
+    def validate_bootloader_fields(self):
+        self._validate_bootloader_package()
+        self._validate_bootloader_file()
+        self._validate_spl_package()
+        self._validate_spl_file()
+        self._validate_bootloader_file_in_boot_part()
+        self._validate_bootloader_dd()
+        self._validate_spl_in_boot_part()
+        self._validate_spl_dd()
+        self._validate_env_dd()
+
     def validate(self):
         """Check that this configuration follows the schema.
 
@@ -195,8 +245,15 @@ class Config(object):
         self._validate_assume_installed()
 
         if self.format.has_v2_fields:
-            self._validate_bootloader_package()
-            self._validate_bootloader_file()
+            # Check config for all bootloaders if one isn't specified.
+            if self.bootloader == None and self._is_v3:
+                for bootloader in self.get_bootloader_list():
+                    self.set_bootloader(bootloader)
+                    self.validate_bootloader_fields()
+                self.set_bootloader(None)
+            else:
+                self.validate_bootloader_fields()
+
             self._validate_serial_tty()
             self._validate_kernel_addr()
             self._validate_initrd_addr()
@@ -209,19 +266,12 @@ class Config(object):
             self._validate_root_min_size()
             self._validate_loader_min_size()
             self._validate_loader_start()
-            self._validate_spl_package()
-            self._validate_spl_file()
             self._validate_vmlinuz()
             self._validate_initrd()
             self._validate_dtb_file()
             self._validate_mmc_id()
             self._validate_extra_boot_options()
             self._validate_boot_script()
-            self._validate_bootloader_file_in_boot_part()
-            self._validate_bootloader_dd()
-            self._validate_spl_in_boot_part()
-            self._validate_spl_dd()
-            self._validate_env_dd()
             self._validate_extra_serial_opts()
             self._validate_snowball_startup_files_config()
             self._validate_samsung_bl1_start()
@@ -307,6 +357,58 @@ class Config(object):
         return self._get_bootloader_option(SPL_IN_BOOT_PART_FIELD)
 
     @property
+    def bootloader_copy_files(self):
+        """Extra files to copy to boot partition.
+
+        This can be stored in several formats. We always present in a common
+        one: {source_package: [{source_file_path: dest_file_path}].
+        dest_file_path (in the above example) is always absolute.
+        """
+        #copy_files:
+        #  source_package:
+        #   - source_file_path : dest_file_path
+        #   - source_file_without_explicit_destination
+        #copy_files:
+        # - file1
+        # - file2: dest_path
+        #
+        # Note that the list of files is always that - a list.
+
+        copy_files = self._get_bootloader_option(COPY_FILES_FIELD)
+
+        if copy_files is None:
+            return None
+
+        if not isinstance(copy_files, dict):
+            copy_files = {self.bootloader_package: copy_files}
+
+        for package in copy_files:
+            new_list = []
+            for value in copy_files[package]:
+                if not isinstance(value, dict):
+                    dest_path = "/boot"
+                    source_path = value
+                else:
+                    if len(value.keys()) > 1:
+                        raise HwpackConfigError("copy_files entry found with"
+                            "more than one destination")
+                    source_path = value.keys()[0]
+                    dest_path = value[source_path]
+
+                if not dest_path.startswith("/boot"):
+                    # Target path should be relative, or start with /boot - we
+                    # don't support to copying to anywhere other than /boot.
+                    if dest_path[0] == "/":
+                        raise HwpackConfigError("copy_files destinations must"
+                            "be relative to /boot or start with /boot.")
+                    dest_path = os.path.join("/boot", dest_path)
+
+                new_list.append({source_path: dest_path})
+            copy_files[package] = new_list
+
+        return copy_files
+
+    @property
     def spl_dd(self):
         """If the spl binary should be dd:d to the boot partition
         this field specifies the offset. An int."""
@@ -336,6 +438,8 @@ class Config(object):
         """Get an option inside the current bootloader section."""
         if self._is_v3:
             if not self.bootloader:
+                if self.allow_unset_bootloader:
+                    return None
                 raise ValueError("bootloader not set.")
             if not isinstance(key, list):
                 keys = [key]
@@ -372,7 +476,21 @@ class Config(object):
             key = self._v2_key_to_v3(key)
             if result is not None:
                 result = result.get(key, None)
+        self.last_used_keys = keys
         return result
+
+    def get_last_used_keys(self):
+        """Used so you can work out which boards + boot loader was used.
+
+        Configuration data is stored in a dictionary. This returns a list of
+        keys used to traverse into the dictionary the last time an item was
+        looked up.
+
+        This can be used to see where a bit of information came from - we
+        store data that may be indexed differently depending on which board
+        and bootloader are set.
+        """
+        return self.last_used_keys
 
     def get_option(self, name):
         """Return the value of an attribute by name.
