@@ -44,6 +44,8 @@ from hwpack_fields import (
     DD_FIELD,
     DTB_ADDR_FIELD,
     DTB_FILE_FIELD,
+    DEFAULT_BOOTLOADER,
+    DTB_FILES_FIELD,
     ENV_DD_FIELD,
     EXTRA_BOOT_OPTIONS_FIELD,
     EXTRA_SERIAL_OPTIONS_FIELD,
@@ -84,6 +86,8 @@ from hwpack_fields import (
     VERSION_FIELD,
     hwpack_v3_layout,
 )
+
+import logging
 
 
 class HwpackConfigError(Exception):
@@ -152,8 +156,10 @@ class Config(object):
         # difference to what is returned when querying the object.
         #
         # self.allow_unset_bootloader allows for both modes of operation.
+        self.logger = logging.getLogger('linaro_image_tools')
         self.allow_unset_bootloader = allow_unset_bootloader
         self.bootloader = None
+
         obfuscated_e = None
         obfuscated_yaml_e = ""
         try:
@@ -175,8 +181,10 @@ class Config(object):
             else:
                 # If YAML parsed OK, we don't have an error.
                 obfuscated_e = None
-                self.set_board(board)
-                self.set_bootloader(bootloader)
+                if board:
+                    self.set_board(board)
+                if bootloader:
+                    self.set_bootloader(bootloader)
 
         if obfuscated_e:
             # If INI parsing from ConfigParser or YAML parsing failed,
@@ -201,8 +209,22 @@ class Config(object):
             if isinstance(bootloaders, dict):
                 # We have a list of bootloaders in the expected format
                 bootloaders = bootloaders.keys()
-                if len(bootloaders) == 1:
-                    bootloader = bootloaders[0]
+                bootloader = bootloaders[0]
+                if len(bootloaders) > 1:
+                    # We have more than one bootloader, use 'u_boot'.
+                    if DEFAULT_BOOTLOADER in bootloaders:
+                        bootloader = DEFAULT_BOOTLOADER
+                        self.logger.warning('WARNING: no bootloader specified '
+                                            'on the command line. Defaulting '
+                                            'to \'%s\'.' % DEFAULT_BOOTLOADER)
+                        self.logger.warning('WARNING: specify another '
+                                            'bootloader if this is not the '
+                                            'correct one to use.')
+                    else:
+                        self.logger.warning('Default bootloader \'%s\' not '
+                                            'found. Will try to use \'%s\'. '
+                                            'instead.' % (DEFAULT_BOOTLOADER,
+                                                          bootloader))
 
         self.bootloader = bootloader
 
@@ -246,11 +268,10 @@ class Config(object):
 
         if self.format.has_v2_fields:
             # Check config for all bootloaders if one isn't specified.
-            if self.bootloader == None and self._is_v3:
+            if not self.bootloader and self._is_v3:
                 for bootloader in self.get_bootloader_list():
                     self.set_bootloader(bootloader)
                     self.validate_bootloader_fields()
-                self.set_bootloader(None)
             else:
                 self.validate_bootloader_fields()
 
@@ -269,6 +290,7 @@ class Config(object):
             self._validate_vmlinuz()
             self._validate_initrd()
             self._validate_dtb_file()
+            self._validate_dtb_files()
             self._validate_mmc_id()
             self._validate_extra_boot_options()
             self._validate_boot_script()
@@ -821,6 +843,14 @@ class Config(object):
         return self._get_option(DTB_FILE_FIELD)
 
     @property
+    def dtb_files(self):
+        """
+        The list of dtb files.
+        :return: A list of dtb files
+        """
+        return self._get_option(DTB_FILES_FIELD)
+
+    @property
     def samsung_bl1_start(self):
         """BL1 start offset for Samsung boards.
 
@@ -953,7 +983,16 @@ class Config(object):
             return "No " + thing + " in the [" + v2_section + "] section"
 
     def _validate_dtb_file(self):
-        dtb_file = self.dtb_file
+        self._check_single_dtb_file(self.dtb_file)
+
+    def _validate_dtb_files(self):
+        dtb_files = self.dtb_files
+        if dtb_files:
+            for dtb_file in dtb_files:
+                for _, src in dtb_file.iteritems():
+                    self._check_single_dtb_file(src)
+
+    def _check_single_dtb_file(self, dtb_file):
         if dtb_file is not None:
             self._assert_matches_pattern(
                 self.GLOB_REGEX, dtb_file, "Invalid path: %s" % dtb_file)

@@ -130,6 +130,8 @@ class HardwarepackHandler(object):
         self.bootloader = bootloader
         self.board = board
         self.tempdirs = {}
+        # Used to store the config created from the metadata.
+        self.config = None
 
     class FakeSecHead(object):
         """ Add a fake section header to the metadata file.
@@ -169,18 +171,30 @@ class HardwarepackHandler(object):
             if tempdir is not None and os.path.exists(tempdir):
                 shutil.rmtree(tempdir)
 
+    def _get_config_from_metadata(self, metadata):
+        """
+        Retrieves a Config object associated with the metadata.
+
+        :param metadata: The metadata to parse.
+        :return: A Config instance.
+        """
+        if not self.config:
+            lines = metadata.readlines()
+            if re.search("=", lines[0]) and not re.search(":", lines[0]):
+                # Probably V2 hardware pack without [hwpack] on the first line
+                lines = ["[hwpack]\n"] + lines
+            self.config = Config(StringIO("".join(lines)))
+            self.config.set_board(self.board)
+            self.config.set_bootloader(self.bootloader)
+        return self.config
+
     def get_field(self, field, return_keys=False):
         data = None
         hwpack_with_data = None
         keys = None
         for hwpack_tarfile in self.hwpack_tarfiles:
             metadata = hwpack_tarfile.extractfile(self.metadata_filename)
-            lines = metadata.readlines()
-            if re.search("=", lines[0]) and not re.search(":", lines[0]):
-                # Probably V2 hardware pack without [hwpack] on the first line
-                lines = ["[hwpack]\n"] + lines
-            parser = Config(StringIO("".join(lines)), self.bootloader,
-                            self.board)
+            parser = self._get_config_from_metadata(metadata)
             try:
                 new_data = parser.get_option(field)
                 if new_data is not None:
@@ -389,10 +403,12 @@ class BoardConfig(object):
     # be specified in the hwpack metadata.
     kernel_addr = None
     initrd_addr = None
+    initrd_high = '0xffffffff'
     load_addr = None
     dtb_addr = None
     dtb_name = None
     dtb_file = None
+    fdt_high = '0xffffffff'
     kernel_flavors = None
     boot_script = None
     serial_tty = None
@@ -403,6 +419,9 @@ class BoardConfig(object):
     initrd = None
     partition_layout = None
     LOADER_START_S = 1
+
+    # Support for dtb_files as per hwpack v3 format.
+    dtb_files = None
 
     # Samsung v310 implementation notes and terminology
     #
@@ -437,6 +456,14 @@ class BoardConfig(object):
         "BL1 expects BL2 (u-boot) to be 512 KiB")
 
     hardwarepack_handler = None
+
+    @staticmethod
+    def _get_logger():
+        """
+        Gets the logger instance.
+        :return: The logger instance
+        """
+        return logging.getLogger('linaro_image_tools')
 
     @classmethod
     def get_metadata_field(cls, field_name):
@@ -495,6 +522,7 @@ class BoardConfig(object):
             cls.vmlinuz = cls.get_metadata_field('vmlinuz')
             cls.initrd = cls.get_metadata_field('initrd')
             cls.dtb_file = cls.get_metadata_field('dtb_file')
+            cls.dtb_files = cls.get_metadata_field('dtb_files')
             cls.extra_boot_args_options = cls.get_metadata_field(
                 'extra_boot_options')
             cls.boot_script = cls.get_metadata_field('boot_script')
@@ -815,6 +843,8 @@ class BoardConfig(object):
         boot_env["bootargs"] = cls._get_bootargs(
             is_live, is_lowmem, consoles, rootfs_id)
         boot_env["bootcmd"] = cls._get_bootcmd(i_img_data, d_img_data)
+        boot_env["initrd_high"] = cls.initrd_high
+        boot_env["fdt_high"] = cls.fdt_high
         return boot_env
 
     @classmethod
@@ -838,6 +868,53 @@ class BoardConfig(object):
             cls._make_boot_files_v2(
                 boot_env, chroot_dir, boot_dir,
                 boot_device_or_file, k_img_data, i_img_data, d_img_data)
+
+    @classmethod
+    def _copy_dtb_files(cls, dtb_files, dest_dir, search_dir):
+        """Copy the files defined in dtb_files into the boot directory.
+
+        :param dtb_files: The list of dtb files
+        :param dest_dir: The directory where to copy each dtb file.
+        :param search_dir: The directory where to search for the real file.
+        """
+        logger = logging.getLogger("linaro_image_tools")
+        logger.info("Copying dtb files")
+        for dtb_file in dtb_files:
+            if dtb_file:
+                if isinstance(dtb_file, dict):
+                    for key, value in dtb_file.iteritems():
+                        # The name of the dtb file in the new position.
+                        to_file = os.path.basename(key)
+                        # The directory where to copy the dtb file.
+                        to_dir = os.path.join(dest_dir, os.path.dirname(key))
+                        from_file = value
+
+                        # User specified only the directory, without renaming
+                        # the file.
+                        if not to_file:
+                            to_file = os.path.basename(from_file)
+
+                        if not os.path.exists(to_dir):
+                            cmd_runner.run(["mkdir", "-p", to_dir],
+                                           as_root=True).wait()
+                        dtb = _get_file_matching(os.path.join(search_dir,
+                                                              from_file))
+                        if not dtb:
+                            logger.warn('Could not find a valid dtb file, '
+                                        'skipping it.')
+                            continue
+                        else:
+                            dest = os.path.join(to_dir, to_file)
+                            logger.debug('Copying %s into %s' % (dtb, dest))
+                            cmd_runner.run(['cp', dtb, dest],
+                                           as_root=True).wait()
+                else:
+                    # Hopefully we should never get here.
+                    # This should only happen if the hwpack config YAML file is
+                    # wrong
+                    logger.warn('WARNING: Wrong syntax in metadata file. '
+                                'Check the hwpack configuration file used to '
+                                'generate the hwpack archive.')
 
     @classmethod
     def _dd_file(cls, from_file, to_file, seek, max_size=None):
@@ -958,6 +1035,10 @@ class BoardConfig(object):
 
                 # Handle copy_files field.
                 cls.copy_files(boot_disk)
+
+            # Handle dtb_files field.
+            if cls.dtb_files:
+                cls._copy_dtb_files(cls.dtb_files, boot_disk, chroot_dir)
 
             cls.make_boot_files(
                 bootloader_parts_dir, is_live, is_lowmem, consoles, chroot_dir,
@@ -1586,9 +1667,13 @@ class FastModelConfig(BoardConfig):
                          d_img_data):
         output_dir = os.path.dirname(boot_device_or_file)
 
-        bootwrapper = _get_file_matching("%s/boot/img.axf" % chroot_dir)
+        # There are 2 kinds of models now, VE and Foundation
+        bw_ve = _get_file_matching("%s/boot/img.axf" % chroot_dir)
+        bw_foundation = _get_file_matching("%s/boot/img-foundation.axf" %
+                                chroot_dir)
 
-        for filename in (bootwrapper, k_img_data, i_img_data, d_img_data):
+        for filename in (bw_ve, bw_foundation, k_img_data,
+                         i_img_data, d_img_data):
             if filename != None:
                 copy_drop(filename, output_dir)
 
@@ -1895,8 +1980,8 @@ def get_plain_boot_script_contents(boot_env):
     # https://bugs.launchpad.net/linaro-image-tools/+bug/788765
     # for more.
     return (
-        'setenv initrd_high "0xffffffff"\n'
-        'setenv fdt_high "0xffffffff"\n'
+        'setenv initrd_high "%(initrd_high)s"\n'
+        'setenv fdt_high "%(fdt_high)s"\n'
         'setenv bootcmd "%(bootcmd)s"\n'
         'setenv bootargs "%(bootargs)s"\n'
         "boot"

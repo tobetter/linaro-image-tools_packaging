@@ -91,6 +91,11 @@ DEFINED_PARTITION_LAYOUTS = [
     'bootfs_rootfs',
     'reserved_bootfs_rootfs', ]
 
+# Supported bootloaders
+U_BOOT = 'u_boot'
+UEFI = 'uefi'
+DEFAULT_BOOTLOADER = U_BOOT
+
 # Define where fields are valid, so we can test them.
 # If a key has a value None, this indicates there is either a value or
 #  list of values that can be associated with it.
@@ -110,6 +115,7 @@ hwpack_v3_layout = {
     ASSUME_INSTALLED_FIELD: None,
     INCLUDE_DEBS_FIELD: None,
     DTB_FILE_FIELD: None,
+    DTB_FILES_FIELD: None,
     DTB_ADDR_FIELD: None,
     SERIAL_TTY_FIELD: None,
     EXTRA_SERIAL_OPTIONS_FIELD: None,
