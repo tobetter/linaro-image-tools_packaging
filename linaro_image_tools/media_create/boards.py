@@ -31,13 +31,8 @@ import re
 import tempfile
 import struct
 from binascii import crc32
-import tarfile
-import ConfigParser
-import shutil
 import string
 import logging
-from linaro_image_tools.hwpack.config import Config
-from linaro_image_tools.hwpack.builder import PackageUnpacker
 
 from parted import Device
 
@@ -45,7 +40,8 @@ from linaro_image_tools import cmd_runner
 
 from linaro_image_tools.media_create.partitions import (
     partition_mounted, SECTOR_SIZE, register_loopback)
-from StringIO import StringIO
+
+from linaro_image_tools.hwpack.handler import HardwarepackHandler
 
 logger = logging.getLogger(__name__)
 
@@ -115,264 +111,6 @@ class classproperty(object):
         return self.getter(cls)
 
 
-class HardwarepackHandler(object):
-    FORMAT_1 = '1.0'
-    FORMAT_2 = '2.0'
-    FORMAT_3 = '3.0'
-    FORMAT_MIXED = '1.0and2.0'
-    metadata_filename = 'metadata'
-    format_filename = 'FORMAT'
-    main_section = 'main'
-    hwpack_tarfiles = []
-    tempdir = None
-
-    def __init__(self, hwpacks, bootloader=None, board=None):
-        self.hwpacks = hwpacks
-        self.hwpack_tarfiles = []
-        self.bootloader = bootloader
-        self.board = board
-        self.tempdirs = {}
-        # Used to store the config created from the metadata.
-        self.config = None
-
-    class FakeSecHead(object):
-        """ Add a fake section header to the metadata file.
-
-        This is done so we can use ConfigParser to parse the file.
-        """
-        def __init__(self, fp):
-            self.fp = fp
-            self.sechead = '[%s]\n' % HardwarepackHandler.main_section
-
-        def readline(self):
-            if self.sechead:
-                try:
-                    return self.sechead
-                finally:
-                    self.sechead = None
-            else:
-                return self.fp.readline()
-
-    def __enter__(self):
-        self.tempdir = tempfile.mkdtemp()
-        for hwpack in self.hwpacks:
-            hwpack_tarfile = tarfile.open(hwpack, mode='r:gz')
-            self.hwpack_tarfiles.append(hwpack_tarfile)
-        return self
-
-    def __exit__(self, type, value, traceback):
-        for hwpack_tarfile in self.hwpack_tarfiles:
-            if hwpack_tarfile is not None:
-                hwpack_tarfile.close()
-        self.hwpack_tarfiles = []
-        if self.tempdir is not None and os.path.exists(self.tempdir):
-            shutil.rmtree(self.tempdir)
-
-        for name in self.tempdirs:
-            tempdir = self.tempdirs[name]
-            if tempdir is not None and os.path.exists(tempdir):
-                shutil.rmtree(tempdir)
-
-    def _get_config_from_metadata(self, metadata):
-        """
-        Retrieves a Config object associated with the metadata.
-
-        :param metadata: The metadata to parse.
-        :return: A Config instance.
-        """
-        if not self.config:
-            lines = metadata.readlines()
-            if re.search("=", lines[0]) and not re.search(":", lines[0]):
-                # Probably V2 hardware pack without [hwpack] on the first line
-                lines = ["[hwpack]\n"] + lines
-            self.config = Config(StringIO("".join(lines)))
-            self.config.set_board(self.board)
-            self.config.set_bootloader(self.bootloader)
-        return self.config
-
-    def get_field(self, field, return_keys=False):
-        data = None
-        hwpack_with_data = None
-        keys = None
-        for hwpack_tarfile in self.hwpack_tarfiles:
-            metadata = hwpack_tarfile.extractfile(self.metadata_filename)
-            parser = self._get_config_from_metadata(metadata)
-            try:
-                new_data = parser.get_option(field)
-                if new_data is not None:
-                    assert data is None, "The metadata field '%s' is set to " \
-                        "'%s' and new value '%s' is found" % (field, data,
-                                                              new_data)
-                    data = new_data
-                    hwpack_with_data = hwpack_tarfile
-                    if return_keys:
-                        keys = parser.get_last_used_keys()
-            except ConfigParser.NoOptionError:
-                continue
-
-        if return_keys:
-            return data, hwpack_with_data, keys
-        return data, hwpack_with_data
-
-    def get_format(self):
-        format = None
-        supported_formats = [self.FORMAT_1, self.FORMAT_2, self.FORMAT_3]
-        for hwpack_tarfile in self.hwpack_tarfiles:
-            format_file = hwpack_tarfile.extractfile(self.format_filename)
-            format_string = format_file.read().strip()
-            if not format_string in supported_formats:
-                raise AssertionError(
-                    "Format version '%s' is not supported." % format_string)
-            if format is None:
-                format = format_string
-            elif format != format_string:
-                return self.FORMAT_MIXED
-        return format
-
-    def get_file(self, file_alias):
-        """Get file(s) from a hwpack.
-        :param file_alias: Property name (not field name) which contains
-                           file reference(s)
-        :return: path to a file or list of paths to files
-        """
-        file_names, hwpack_tarfile, keys = self.get_field(file_alias,
-                                                          return_keys=True)
-        if not file_names:
-            return file_names
-        single = False
-        if not isinstance(file_names, list):
-            single = True
-            file_names = [file_names]
-        out_files = []
-
-        # Depending on if board and/or bootloader were used to look up the
-        # file we are getting, we need to prepend those names to the path
-        # to get the correct extracted file from the hardware pack.
-        config_names = [("board", "boards"), ("bootloader", "bootloaders")]
-        base_path = ""
-        if keys:
-            # If keys is non-empty, we have a V3 config option that was
-            # modified by the bootloader and/or boot option...
-            for name, key in config_names:
-                if self.get_field(name):
-                    value = self.get_field(name)[0]
-                    if keys[0] == key:
-                        base_path = os.path.join(base_path, value)
-                        keys = keys[1:]
-
-        for f in file_names:
-            # Check that the base path is needed. If the file doesn't exist,
-            # try without it (this provides fallback to V2 style directory
-            # layouts with a V3 config).
-            path_inc_board_and_bootloader = os.path.join(base_path, f)
-            if path_inc_board_and_bootloader in hwpack_tarfile.getnames():
-                f = path_inc_board_and_bootloader
-            hwpack_tarfile.extract(f, self.tempdir)
-            f = os.path.join(self.tempdir, f)
-            out_files.append(f)
-        if single:
-            return out_files[0]
-        return out_files
-
-    def list_packages(self):
-        """Return list of (package names, TarFile object containing them)"""
-        packages = []
-        for tf in self.hwpack_tarfiles:
-            for name in tf.getnames():
-                if name.startswith("pkgs/") and name.endswith(".deb"):
-                    packages.append((tf, name))
-        return packages
-
-    def find_package_for(self, name, version=None, revision=None,
-                         architecture=None):
-        """Find a package that matches the name, version, rev and arch given.
-
-        Packages are named according to the debian specification:
-        http://www.debian.org/doc/manuals/debian-faq/ch-pkg_basics.en.html
-        <name>_<Version>-<DebianRevisionNumber>_<DebianArchitecture>.deb
-        DebianRevisionNumber seems to be optional.
-        Use this spec to return a package matching the requirements given.
-        """
-        for tar_file, package in self.list_packages():
-            file_name = os.path.basename(package)
-            dpkg_chunks = re.search("^(.+)_(.+)_(.+)\.deb$",
-                                    file_name)
-            assert dpkg_chunks, "Could not split package file name into"\
-                "<name>_<Version>_<DebianArchitecture>.deb"
-
-            pkg_name = dpkg_chunks.group(1)
-            pkg_version = dpkg_chunks.group(2)
-            pkg_architecture = dpkg_chunks.group(3)
-
-            ver_chunks = re.search("^(.+)-(.+)$", pkg_version)
-            if ver_chunks:
-                pkg_version = ver_chunks.group(1)
-                pkg_revision = ver_chunks.group(2)
-            else:
-                pkg_revision = None
-
-            if name != pkg_name:
-                continue
-            if version != None and str(version) != pkg_version:
-                continue
-            if revision != None and str(revision) != pkg_revision:
-                continue
-            if (architecture != None and
-                str(architecture) != pkg_architecture):
-                continue
-
-            # Got a matching package - return its path inside the tarball
-            return tar_file, package
-
-        # Failed to find a matching package - return None
-        return None
-
-    def get_file_from_package(self, file_path, package_name,
-                              package_version=None, package_revision=None,
-                              package_architecture=None):
-        """Extract named file from package specified by name, ver, rev, arch.
-
-        File is extracted from the package matching the given specification
-        to a temporary directory. The absolute path to the extracted file is
-        returned.
-        """
-
-        package_info = self.find_package_for(package_name,
-                                             package_version,
-                                             package_revision,
-                                             package_architecture)
-        if package_info is None:
-            return None
-        tar_file, package = package_info
-
-        # Avoid unpacking hardware pack more than once by assigning each one
-        # its own tempdir to unpack into.
-        # TODO: update logic that uses self.tempdir so we can get rid of this
-        # by sharing nicely.
-        if not package in self.tempdirs:
-            self.tempdirs[package] = tempfile.mkdtemp()
-        tempdir = self.tempdirs[package]
-
-        # We extract everything in the hardware pack so we don't have to worry
-        # about chasing links (extract a link, find where it points to, extract
-        # that...). This is slower, but more reliable.
-        tar_file.extractall(tempdir)
-        package_path = os.path.join(tempdir, package)
-
-        with PackageUnpacker() as self.package_unpacker:
-            extracted_file = self.package_unpacker.get_file(package_path,
-                                                            file_path)
-            after_tmp = re.sub(self.package_unpacker.tempdir, "",
-                               extracted_file).lstrip("/\\")
-            extract_dir = os.path.join(tempdir, "extracted",
-                                       os.path.dirname(after_tmp))
-            os.makedirs(extract_dir)
-            shutil.move(extracted_file, extract_dir)
-            extracted_file = os.path.join(extract_dir,
-                                          os.path.basename(extracted_file))
-        return extracted_file
-
-
 class BoardConfig(object):
     board = None
     """The configuration used when building an image for a board."""
@@ -425,37 +163,26 @@ class BoardConfig(object):
     # Support for dtb_files as per hwpack v3 format.
     dtb_files = None
 
-    # Samsung v310 implementation notes and terminology
+    # Samsung Boot-loader implementation notes and terminology
     #
     # * BL0, BL1 etc. are the various bootloaders in order of execution
-    # * BL0 is the first stage bootloader, located in ROM; it loads a 32s
-    #   long BL1 from MMC offset +1s and runs it
-    # * BL1 is the secondary program loader (SPL), a small (< 14k) version
+    # * BL0 is the first stage bootloader, located in ROM; it loads BL1/SPL
+    # from MMC offset +1s and runs it.
+    # * BL1 is the secondary program loader (SPL), a small version
     #   of U-Boot with a checksum; it inits DRAM and loads a 1024s long BL2
-    #   to DRAM from MMC offset +65s
-    # * BL2 is U-Boot; it loads its 32s (16 KiB) long environment from MMC
-    #   offset +33s which tells it to load a boot.scr from the first FAT
-    #   partition of the MMC
+    #   from MMC and runs it.
+    # * BL2 is the U-Boot.
     #
-    # Layout:
-    # +0s: part table / MBR, 1s long
-    # +1s: BL1/SPL, 32s long
-    # +33s: U-Boot environment, 32s long
-    # +65s: U-Boot, 1024s long
-    # >= +1089s: FAT partition with boot script (boot.scr), kernel (uImage)
-    #            and initrd (uInitrd)
-    SAMSUNG_V310_BL1_START = 1
-    SAMSUNG_V310_BL1_LEN = 32
-    SAMSUNG_V310_ENV_START = SAMSUNG_V310_BL1_START + SAMSUNG_V310_BL1_LEN
-    SAMSUNG_V310_ENV_LEN = 32
-    assert SAMSUNG_V310_ENV_START == 33, (
-        "BL1 expects u-boot environment at +33s")
-    assert SAMSUNG_V310_ENV_LEN * SECTOR_SIZE == 16 * 1024, (
-        "BL1 expects u-boot environment to be 16 KiB")
-    SAMSUNG_V310_BL2_START = SAMSUNG_V310_ENV_START + SAMSUNG_V310_ENV_LEN
-    SAMSUNG_V310_BL2_LEN = 1024
-    assert SAMSUNG_V310_BL2_LEN * SECTOR_SIZE == 512 * 1024, (
-        "BL1 expects BL2 (u-boot) to be 512 KiB")
+    # samsung_bl1_{start,len}: Offset and maximum size for BL1
+    # samsung_bl2_{start,len}: Offset and maximum size for BL2
+    # samsung_env_{start,len}: Offset and maximum size for Environment settings
+    #
+    samsung_bl1_start = 1
+    samsung_bl1_len = 32
+    samsung_bl2_start = 65
+    samsung_bl2_len = 1024
+    samsung_env_start = 33
+    samsung_env_len = 32
 
     hardwarepack_handler = None
 
@@ -493,12 +220,12 @@ class BoardConfig(object):
                 cls.kernel_flavors = None
                 cls.mmc_option = None
                 cls.mmc_part_offset = None
-                cls.SAMSUNG_V310_BL1_START = None
-                cls.SAMSUNG_V310_BL1_LEN = None
-                cls.SAMSUNG_V310_ENV_START = None
-                cls.SAMSUNG_V310_ENV_LEN = None
-                cls.SAMSUNG_V310_BL2_START = None
-                cls.SAMSUNG_V310_BL2_LEN = None
+                cls.samsung_bl1_start = None
+                cls.samsung_bl1_len = None
+                cls.samsung_env_len = None
+                cls.samsung_bl2_len = None
+                # cls.samsung_bl2_start and cls.samsung_env_start should
+                # be initialized to default value for backward compatibility.
 
             # Set new values from metadata.
             cls.kernel_addr = cls.get_metadata_field('kernel_addr')
@@ -594,31 +321,30 @@ class BoardConfig(object):
             loader_start = cls.get_metadata_field('loader_start')
             if loader_start is not None:
                 cls.LOADER_START_S = int(loader_start)
+
             samsung_bl1_start = cls.get_metadata_field('samsung_bl1_start')
             if samsung_bl1_start is not None:
-                cls.SAMSUNG_V310_BL1_START = int(samsung_bl1_start)
+                cls.samsung_bl1_start = int(samsung_bl1_start)
+
             samsung_bl1_len = cls.get_metadata_field('samsung_bl1_len')
             if samsung_bl1_len is not None:
-                cls.SAMSUNG_V310_BL1_LEN = int(samsung_bl1_len)
-            samsung_env_len = cls.get_metadata_field('samsung_env_len')
-            if samsung_env_len is not None:
-                cls.SAMSUNG_V310_ENV_LEN = int(samsung_env_len)
-                assert cls.SAMSUNG_V310_ENV_LEN * SECTOR_SIZE == 16 * 1024, (
-                    "BL1 expects u-boot environment to be 16 KiB")
+                cls.samsung_bl1_len = int(samsung_bl1_len)
+
             samsung_bl2_len = cls.get_metadata_field('samsung_bl2_len')
             if samsung_bl2_len is not None:
-                cls.SAMSUNG_V310_BL2_LEN = int(samsung_bl2_len)
-                assert cls.SAMSUNG_V310_BL2_LEN * SECTOR_SIZE == 512 * 1024, (
-                    "BL1 expects BL2 (u-boot) to be 512 KiB")
+                cls.samsung_bl2_len = int(samsung_bl2_len)
 
-            if (cls.SAMSUNG_V310_BL1_START and cls.SAMSUNG_V310_BL1_LEN):
-                cls.SAMSUNG_V310_ENV_START = (cls.SAMSUNG_V310_BL1_START +
-                                              cls.SAMSUNG_V310_BL1_LEN)
-                assert cls.SAMSUNG_V310_ENV_START == 33, (
-                    "BL1 expects u-boot environment at +33s")
-            if (cls.SAMSUNG_V310_ENV_START and cls.SAMSUNG_V310_ENV_LEN):
-                cls.SAMSUNG_V310_BL2_START = (cls.SAMSUNG_V310_ENV_START +
-                                              cls.SAMSUNG_V310_ENV_LEN)
+            samsung_bl2_start = cls.get_metadata_field('samsung_bl2_start')
+            if samsung_bl2_start is not None:
+                cls.samsung_bl2_start = int(samsung_bl2_start)
+
+            samsung_env_len = cls.get_metadata_field('samsung_env_len')
+            if samsung_env_len is not None:
+                cls.samsung_env_len = int(samsung_env_len)
+
+            samsung_env_start = cls.get_metadata_field('samsung_env_start')
+            if samsung_env_start is not None:
+                cls.samsung_env_start = int(samsung_env_start)
 
             cls.bootloader_copy_files = cls.hardwarepack_handler.get_field(
                 "bootloader_copy_files")[0]
@@ -922,11 +648,11 @@ class BoardConfig(object):
     def install_samsung_boot_loader(cls, samsung_spl_file, bootloader_file,
                                     boot_device_or_file):
                 cls._dd_file(samsung_spl_file, boot_device_or_file,
-                             cls.SAMSUNG_V310_BL1_START,
-                             cls.SAMSUNG_V310_BL1_LEN * SECTOR_SIZE)
+                             cls.samsung_bl1_start,
+                             cls.samsung_bl1_len * SECTOR_SIZE)
                 cls._dd_file(bootloader_file, boot_device_or_file,
-                             cls.SAMSUNG_V310_BL2_START,
-                             cls.SAMSUNG_V310_BL2_LEN * SECTOR_SIZE)
+                             cls.samsung_bl2_start,
+                             cls.samsung_bl2_len * SECTOR_SIZE)
 
     @classmethod
     def _make_boot_files_v2(cls, boot_env, chroot_dir, boot_dir,
@@ -974,12 +700,12 @@ class BoardConfig(object):
         if cls.env_dd:
             # Do we need to zero out the env before flashing it?
             _dd("/dev/zero", boot_device_or_file,
-                count=cls.SAMSUNG_V310_ENV_LEN,
-                seek=cls.SAMSUNG_V310_ENV_START)
-            env_size = cls.SAMSUNG_V310_ENV_LEN * SECTOR_SIZE
+                count=cls.samsung_env_len,
+                seek=cls.samsung_env_start)
+            env_size = cls.samsung_env_len * SECTOR_SIZE
             env_file = make_flashable_env(boot_env, env_size)
             cls._dd_file(env_file, boot_device_or_file,
-                         cls.SAMSUNG_V310_ENV_START)
+                         cls.samsung_env_start)
 
     @classmethod
     def _make_boot_files(cls, boot_env, chroot_dir, boot_dir,
@@ -1677,8 +1403,8 @@ class SamsungConfig(BoardConfig):
     def get_v1_sfdisk_cmd(cls, should_align_boot_part=False):
         # bootloaders partition needs to hold BL1, U-Boot environment, and BL2
         loaders_min_len = (
-            cls.SAMSUNG_V310_BL2_START + cls.SAMSUNG_V310_BL2_LEN -
-            cls.SAMSUNG_V310_BL1_START)
+            cls.samsung_bl1_start + cls.samsung_bl1_len + cls.samsung_bl2_len +
+            cls.samsung_env_len)
 
         # bootloaders partition
         loaders_start, loaders_end, loaders_len = align_partition(
@@ -1706,9 +1432,9 @@ class SamsungConfig(BoardConfig):
         assert cls.hwpack_format == HardwarepackHandler.FORMAT_1
         cls.install_samsung_boot_loader(cls._get_samsung_spl(chroot_dir),
             cls._get_samsung_bootloader(chroot_dir), boot_device_or_file)
-        env_size = cls.SAMSUNG_V310_ENV_LEN * SECTOR_SIZE
+        env_size = cls.samsung_env_len * SECTOR_SIZE
         env_file = make_flashable_env(boot_env, env_size)
-        _dd(env_file, boot_device_or_file, seek=cls.SAMSUNG_V310_ENV_START)
+        _dd(env_file, boot_device_or_file, seek=cls.samsung_env_start)
 
         make_uImage(cls.load_addr, k_img_data, boot_dir)
         make_uInitrd(i_img_data, boot_dir)
@@ -1727,6 +1453,7 @@ class SamsungConfig(BoardConfig):
         old_spl_path = os.path.join(spl_dir, 'v310_mmc_spl.bin')
         new_spl_path = os.path.join(spl_dir, 'u-boot-mmc-spl.bin')
         new_new_spl_path = os.path.join(spl_dir, 'origen-spl.bin')
+        samsung_spl_path_4 = os.path.join(spl_dir, 'origen_quad-spl.bin')
 
         spl_file = old_spl_path
         # The new upstream u-boot filename has changed
@@ -1736,6 +1463,10 @@ class SamsungConfig(BoardConfig):
         # The new upstream u-boot filename has changed again
         if not os.path.exists(spl_file):
             spl_file = new_new_spl_path
+
+        # upstream u-boot filename is dependent on board name
+        if not os.path.exists(spl_file):
+            spl_file = samsung_spl_path_4
 
         if not os.path.exists(spl_file):
             # missing SPL loader
@@ -1755,19 +1486,19 @@ class SamsungConfig(BoardConfig):
     @classmethod
     def populate_raw_partition(cls, boot_device_or_file, chroot_dir):
         # Zero the env so that the boot_script will get loaded
-        _dd("/dev/zero", boot_device_or_file, count=cls.SAMSUNG_V310_ENV_LEN,
-            seek=cls.SAMSUNG_V310_ENV_START)
+        _dd("/dev/zero", boot_device_or_file, count=cls.samsung_env_len,
+            seek=cls.samsung_env_start)
         # Populate created raw partition with BL1 and u-boot
         spl_file = os.path.join(chroot_dir, 'boot', 'u-boot-mmc-spl.bin')
         assert os.path.getsize(spl_file) <= (
-            cls.SAMSUNG_V310_BL1_LEN * SECTOR_SIZE), (
-            "%s is larger than SAMSUNG_V310_BL1_LEN" % spl_file)
-        _dd(spl_file, boot_device_or_file, seek=cls.SAMSUNG_V310_BL1_START)
+            cls.samsung_bl1_len * SECTOR_SIZE), (
+            "%s is larger than Samsung BL1 size" % spl_file)
+        _dd(spl_file, boot_device_or_file, seek=cls.samsung_bl1_start)
         uboot_file = os.path.join(chroot_dir, 'boot', 'u-boot.bin')
         assert os.path.getsize(uboot_file) <= (
-            cls.SAMSUNG_V310_BL2_LEN * SECTOR_SIZE), (
-            "%s is larger than SAMSUNG_V310_BL2_LEN" % uboot_file)
-        _dd(uboot_file, boot_device_or_file, seek=cls.SAMSUNG_V310_BL2_START)
+            cls.samsung_bl2_len * SECTOR_SIZE), (
+            "%s is larger than Samsung BL2 size" % uboot_file)
+        _dd(uboot_file, boot_device_or_file, seek=cls.samsung_bl2_start)
 
 
 class SMDKV310Config(SamsungConfig):
@@ -1805,6 +1536,22 @@ class OrigenConfig(SamsungConfig):
     boot_script = 'boot.scr'
     mmc_part_offset = 1
     mmc_option = '0:2'
+
+
+class OrigenQuadConfig(SamsungConfig):
+    bootloader_flavor = 'origen_quad'
+    serial_tty = 'ttySAC2'
+    _extra_serial_opts = 'console=%s,115200n8'
+    kernel_addr = '0x40007000'
+    initrd_addr = '0x42000000'
+    load_addr = '0x40008000'
+    kernel_flavors = ['origen_quad']
+    boot_script = 'boot.scr'
+    mmc_part_offset = 1
+    mmc_option = '0:2'
+    samsung_bl1_len = 48
+    samsung_bl2_start = 49
+    samsung_env_start = 1073
 
 
 class I386Config(BoardConfig):
@@ -1892,6 +1639,7 @@ board_configs = {
     'overo': OveroConfig,
     'smdkv310': SMDKV310Config,
     'origen': OrigenConfig,
+    'origen_quad': OrigenQuadConfig,
     'mx6qsabrelite': BoardConfig,
     'i386': I386Config,
     }
