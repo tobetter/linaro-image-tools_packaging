@@ -1,3 +1,9 @@
+linaro-image-tools (2013.01-0ubuntu1~linaro1) precise; urgency=low
+
+  * New upstream release.
+
+ -- Fathi Boudra <fathi.boudra@linaro.org>  Mon, 28 Jan 2013 13:17:13 +0200
+
 linaro-image-tools (2012.12-0ubuntu1~linaro1) precise; urgency=low
 
   * New upstream release.
