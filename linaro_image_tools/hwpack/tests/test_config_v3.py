@@ -347,6 +347,13 @@ class ConfigTests(TestCase):
         self.assertValidationError("Invalid serial tty: ttxSAC1",
                                    config._validate_serial_tty)
 
+    def test_validate_mmc_id_wrong(self):
+        # The mmc_id value, if coming from a yaml file, has to be quoted.
+        # Make sure the test does not accept a valid-unquoted value.
+        config = self.get_config(self.valid_complete_v3 +
+                                 "mmc_id: 1:1\n")
+        self.assertRaises(HwpackConfigError, config._validate_mmc_id)
+
     def test_validate_mmc_id(self):
         config = self.get_config(self.valid_complete_v3 +
                                  "mmc_id: x\n")
@@ -511,11 +518,11 @@ class ConfigTests(TestCase):
             "omapfb.vram=0:24M mem=456M@0x80000000 mem=512M@0xA0000000",
             config.extra_boot_options)
 
-    def test_extra_serial_opts(self):
+    def test_extra_serial_options(self):
         config = self.get_config(self.valid_complete_v3 + self.valid_end)
         config.validate()
         self.assertEqual('console=tty0 console=ttyO2,115200n8',
-                         config.extra_serial_opts)
+                         config.extra_serial_options)
 
     def test_boot_script(self):
         config = self.get_config(self.valid_complete_v3 + self.valid_end)
