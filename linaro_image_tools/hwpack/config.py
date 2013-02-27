@@ -30,7 +30,7 @@ from linaro_image_tools.hwpack.hardwarepack_format import (
     HardwarePackFormatV1,
     HardwarePackFormatV2,
     HardwarePackFormatV3,
-    )
+)
 
 from hwpack_fields import (
     ARCHITECTURES_FIELD,
@@ -160,7 +160,8 @@ class Config(object):
         # self.allow_unset_bootloader allows for both modes of operation.
         self.logger = logging.getLogger('linaro_image_tools')
         self.allow_unset_bootloader = allow_unset_bootloader
-        self.bootloader = None
+        self.board = board
+        self._bootloader = bootloader
 
         obfuscated_e = None
         obfuscated_yaml_e = ""
@@ -179,14 +180,10 @@ class Config(object):
                 self.parser = yaml.safe_load(fp)
             except yaml.YAMLError, e:
                 obfuscated_yaml_e = re.sub(r"([^ ]https://).+?(@)",
-                                      r"\1***\2", str(e))
+                                           r"\1***\2", str(e))
             else:
                 # If YAML parsed OK, we don't have an error.
                 obfuscated_e = None
-                if board:
-                    self.set_board(board)
-                if bootloader:
-                    self.set_bootloader(bootloader)
 
         if obfuscated_e:
             # If INI parsing from ConfigParser or YAML parsing failed,
@@ -198,12 +195,12 @@ class Config(object):
                    obfuscated_yaml_e)
             raise ConfigParser.Error(msg)
 
-    def set_bootloader(self, bootloader):
-        """Set bootloader used to look up configuration in bootloader section.
+    def _get_bootloader(self):
+        """Returns the bootloader associated with this config.
 
         If bootloader is None / empty and there is only one bootloader
-        available, use that.
-        """
+        available, use that."""
+        bootloader = self._bootloader
         if not bootloader:
             # Auto-detect bootloader. If there is a single bootloader specified
             # then use it, else, error.
@@ -227,12 +224,17 @@ class Config(object):
                                             'found. Will try to use \'%s\'. '
                                             'instead.' % (DEFAULT_BOOTLOADER,
                                                           bootloader))
+            # bootloader is None: since we are here, set it so we do not
+            # have to go through all the config retrieval again.
+            self._bootloader = bootloader
+        return bootloader
 
-        self.bootloader = bootloader
+    def _set_bootloader(self, value):
+        """Set bootloader used to look up configuration in bootloader section.
+        """
+        self._bootloader = value
 
-    def set_board(self, board):
-        """Set board used to look up per-board configuration"""
-        self.board = board
+    bootloader = property(_get_bootloader, _set_bootloader)
 
     def get_bootloader_list(self):
         if isinstance(self.bootloaders, dict):
@@ -272,7 +274,7 @@ class Config(object):
             # Check config for all bootloaders if one isn't specified.
             if not self.bootloader and self._is_v3:
                 for bootloader in self.get_bootloader_list():
-                    self.set_bootloader(bootloader)
+                    self.bootloader = bootloader
                     self.validate_bootloader_fields()
             else:
                 self.validate_bootloader_fields()
@@ -331,7 +333,7 @@ class Config(object):
             return HardwarePackFormatV3()
         else:
             raise HwpackConfigError("Format version '%s' is not supported." %
-                                        format_string)
+                                    format_string)
 
     @property
     def name(self):
@@ -346,7 +348,7 @@ class Config(object):
     def include_debs(self):
         """Whether the hardware pack should contain .debs. A bool."""
         try:
-            if self._get_option(self.INCLUDE_DEBS_KEY) == None:
+            if self._get_option(self.INCLUDE_DEBS_KEY) is None:
                 return True
             try:
                 return self._get_option_bool(self.INCLUDE_DEBS_KEY)
@@ -417,7 +419,7 @@ class Config(object):
                 else:
                     if len(value.keys()) > 1:
                         raise HwpackConfigError("copy_files entry found with"
-                            "more than one destination")
+                                                "more than one destination")
                     source_path = value.keys()[0]
                     dest_path = value[source_path]
 
@@ -425,7 +427,8 @@ class Config(object):
                     # Target path should be relative, or start with /boot - we
                     # don't support to copying to anywhere other than /boot.
                     if dest_path[0] == "/":
-                        raise HwpackConfigError("copy_files destinations must"
+                        raise HwpackConfigError(
+                            "copy_files destinations must"
                             "be relative to /boot or start with /boot.")
                     dest_path = os.path.join("/boot", dest_path)
 
@@ -551,11 +554,11 @@ class Config(object):
                 result = self._get_v3_option([BOARDS_FIELD, self.board] + keys)
 
             # If a board specific value isn't found, look for a global one
-            if result == None:
+            if result is None:
                 result = self._get_v3_option(keys)
 
             # If no value is found, bail early (return None)
-            if result == None:
+            if result is None:
                 return None
 
             # <v3 compatibility: Lists of items can be converted to strings
@@ -949,8 +952,8 @@ class Config(object):
         if not format:
             raise HwpackConfigError("Empty value for format")
         if not format.is_supported:
-            raise HwpackConfigError("Format version '%s' is not supported." % \
-                                        format)
+            raise HwpackConfigError("Format version '%s' is not supported." %
+                                    format)
 
     def _assert_matches_pattern(self, regex, config_item, error_message):
             if re.match(regex, config_item) is None:
@@ -1064,7 +1067,7 @@ class Config(object):
             raise HwpackConfigError("Invalid %s address: %s" %
                                     (name, self._get_option(key)))
 
-        if addr == None:
+        if addr is None:
             return
 
         if not re.match(r"^0x[a-fA-F0-9]{8}$", addr):
@@ -1107,8 +1110,8 @@ class Config(object):
         mmc_id = self.mmc_id
         if not mmc_id:
             raise HwpackConfigError(
-                "No mmc_id in the [%s] section" % \
-                    self.MAIN_SECTION)
+                "No mmc_id in the [%s] section" %
+                self.MAIN_SECTION)
         else:
             self._assert_matches_pattern(
                 r"[0-9]:[0-9]", mmc_id, "Invalid mmc_id %s" % mmc_id)

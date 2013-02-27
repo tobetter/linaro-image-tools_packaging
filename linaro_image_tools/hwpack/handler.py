@@ -105,8 +105,8 @@ class HardwarepackHandler(object):
                 # Probably V2 hardware pack without [hwpack] on the first line
                 lines = ["[hwpack]\n"] + lines
             self.config = Config(StringIO("".join(lines)))
-            self.config.set_board(self.board)
-            self.config.set_bootloader(self.bootloader)
+            self.config.board = self.board
+            self.config.bootloader = self.bootloader
         return self.config
 
     def get_field(self, field, return_keys=False):
@@ -232,12 +232,12 @@ class HardwarepackHandler(object):
 
             if name != pkg_name:
                 continue
-            if version != None and str(version) != pkg_version:
+            if version is not None and str(version) != pkg_version:
                 continue
-            if revision != None and str(revision) != pkg_revision:
+            if revision is not None and str(revision) != pkg_revision:
                 continue
-            if (architecture != None and
-                str(architecture) != pkg_architecture):
+            if (architecture is not None and
+                    str(architecture) != pkg_architecture):
                 continue
 
             # Got a matching package - return its path inside the tarball

@@ -30,7 +30,7 @@ from linaro_image_tools.hwpack.testing import (
     ConfigFileFixture,
     DummyFetchedPackage,
     IsHardwarePack,
-    )
+)
 from linaro_image_tools.hwpack.config import Config
 from linaro_image_tools.testing import TestCaseWithFixtures
 from linaro_image_tools.utils import find_command
@@ -168,7 +168,7 @@ class ScriptTests(TestCaseWithFixtures):
         # We now need a real config object to test against the configuration
         # in the hardware pack we have created.
         config = Config(StringIO(config_v3))
-        config.set_bootloader("u_boot")
+        config.bootloader = "u_boot"
         metadata = Metadata.from_config(config, "1.0", "armel")
         self.assertThat(
             "hwpack_ahwpack_1.0_armel.tar.gz",

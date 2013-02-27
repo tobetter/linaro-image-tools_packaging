@@ -30,6 +30,11 @@ from linaro_image_tools import cmd_runner
 
 DEFAULT_LOGGER_NAME = 'linaro_image_tools'
 
+# The boot path in the boot tarball.
+BOOT_DIR_IN_TARBALL = "boot"
+# The name of the hwpack file found in the boot tarball.
+HWPACK_NAME = "config"
+
 
 # try_import was copied from python-testtools 0.9.12 and was originally
 # licensed under a MIT-style license but relicensed under the GPL in Linaro
@@ -124,11 +129,11 @@ def verify_file_integrity(sig_file_list):
 
         try:
             sha1sums_out, _ = cmd_runner.Popen(
-                                            ['sha1sum', '-c', hash_file],
-                                            stdout=subprocess.PIPE,
-                                            stderr=subprocess.STDOUT,
-                                            cwd=sha_cwd
-                                            ).communicate()
+                ['sha1sum', '-c', hash_file],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                cwd=sha_cwd
+            ).communicate()
         except cmd_runner.SubcommandNonZeroReturnValue as inst:
             sha1sums_out = inst.stdout
 
@@ -166,7 +171,7 @@ def check_file_integrity_and_log_errors(sig_file_list, binary, hwpacks):
 
         for verified_file in verified_files:
             logger.info('Hash verification of file {0} OK.'.format(
-                                                                verified_file))
+                verified_file))
     return True, verified_files
 
 
@@ -181,7 +186,7 @@ def install_package_providing(command):
 
     if CommandNotFound is None:
         raise UnableToFindPackageProvidingCommand(
-            "Cannot lookup a package which provides %s" % command)
+            "CommandNotFound python module does not exist.")
 
     packages = CommandNotFound().getPackages(command)
     if len(packages) == 0:
@@ -209,15 +214,15 @@ def install_package_providing(command):
             print "Package installation is necessary to continue. Exiting."
             sys.exit(1)
         print ("Installing required command '%s' from package '%s'..."
-                % (command, package))
+               % (command, package))
         cmd_runner.run(['apt-get', '--yes', 'install', package],
-                        as_root=True).wait()
+                       as_root=True).wait()
     except EOFError:
         raise PackageInstallationRefused(
-                            "Package installation interrupted: input error.")
+            "Package installation interrupted: input error.")
     except KeyboardInterrupt:
         raise PackageInstallationRefused(
-                            "Package installation interrupted by the user.")
+            "Package installation interrupted by the user.")
 
 
 def has_command(command):
@@ -352,6 +357,19 @@ def additional_android_option_checks(args):
         if not os.path.isfile(args.hwpack):
             raise InvalidHwpackFile(
                 "--hwpack argument (%s) is not a regular file" % args.hwpack)
+
+
+def andorid_hwpack_in_boot_tarball(boot_dir):
+    """Simple check for existence of a path.
+
+    Needed to make cli command testable in some way.
+    :param boot_dir: The path where the boot tarball has been extracted.
+    :type str
+    :return A tuple with a bool if the path exists, and the path to the config
+            file.
+    """
+    conf_file = os.path.join(boot_dir, BOOT_DIR_IN_TARBALL, HWPACK_NAME)
+    return os.path.exists(conf_file), conf_file
 
 
 def check_required_args(args):

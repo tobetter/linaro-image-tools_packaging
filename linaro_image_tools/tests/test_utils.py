@@ -32,12 +32,14 @@ from linaro_image_tools.tests.fixtures import (
     CreateTempDirFixture,
     MockCmdRunnerPopenFixture,
     MockSomethingFixture,
-    )
+)
 from linaro_image_tools.utils import (
     IncompatibleOptions,
     InvalidHwpackFile,
     UnableToFindPackageProvidingCommand,
+    additional_android_option_checks,
     additional_option_checks,
+    andorid_hwpack_in_boot_tarball,
     check_file_integrity_and_log_errors,
     ensure_command,
     find_command,
@@ -45,8 +47,9 @@ from linaro_image_tools.utils import (
     path_in_tarfile_exists,
     preferred_tools_dir,
     prep_media_path,
+    try_import,
     verify_file_integrity,
-    )
+)
 
 
 sudo_args = " ".join(cmd_runner.SUDO_ARGS)
@@ -152,9 +155,9 @@ class TestVerifyFileIntegrity(TestCaseWithFixtures):
         hash_filename = "dummy-file.txt"
         signature_filename = hash_filename + ".asc"
         result, verified_files = check_file_integrity_and_log_errors(
-                                                [signature_filename],
-                                                self.filenames_in_shafile[0],
-                                                [self.filenames_in_shafile[1]])
+            [signature_filename],
+            self.filenames_in_shafile[0],
+            [self.filenames_in_shafile[1]])
         self.assertEqual(self.filenames_in_shafile, verified_files)
 
         # The sha1sums are faked as passing and all commands return 0, so
@@ -163,14 +166,14 @@ class TestVerifyFileIntegrity(TestCaseWithFixtures):
 
     def test_check_file_integrity_and_print_errors_fail_sha1sum(self):
         logging.getLogger().setLevel(100)  # Disable logging messages to screen
-        self.useFixture(MockSomethingFixture(cmd_runner, 'Popen',
-                                    self.MockCmdRunnerPopen_sha1sum_fail()))
+        self.useFixture(MockSomethingFixture(
+            cmd_runner, 'Popen', self.MockCmdRunnerPopen_sha1sum_fail()))
         hash_filename = "dummy-file.txt"
         signature_filename = hash_filename + ".asc"
         result, verified_files = check_file_integrity_and_log_errors(
-                                                [signature_filename],
-                                                self.filenames_in_shafile[0],
-                                                [self.filenames_in_shafile[1]])
+            [signature_filename],
+            self.filenames_in_shafile[0],
+            [self.filenames_in_shafile[1]])
         self.assertEqual([], verified_files)
 
         # The sha1sums are faked as failing and all commands return 0, so
@@ -180,14 +183,14 @@ class TestVerifyFileIntegrity(TestCaseWithFixtures):
 
     def test_check_file_integrity_and_print_errors_fail_gpg(self):
         logging.getLogger().setLevel(100)  # Disable logging messages to screen
-        self.useFixture(MockSomethingFixture(cmd_runner, 'Popen',
-                                    self.MockCmdRunnerPopen_wait_fails()))
+        self.useFixture(MockSomethingFixture(
+            cmd_runner, 'Popen', self.MockCmdRunnerPopen_wait_fails()))
         hash_filename = "dummy-file.txt"
         signature_filename = hash_filename + ".asc"
         result, verified_files = check_file_integrity_and_log_errors(
-                                                [signature_filename],
-                                                self.filenames_in_shafile[0],
-                                                [self.filenames_in_shafile[1]])
+            [signature_filename],
+            self.filenames_in_shafile[0],
+            [self.filenames_in_shafile[1]])
         self.assertEqual([], verified_files)
 
         # The sha1sums are faked as passing and all commands return 1, so
@@ -268,12 +271,17 @@ class TestInstallPackageProviding(TestCaseWithFixtures):
                                              StringIO('Y')))
         fixture = self.useFixture(
             MockCmdRunnerPopenFixture(self.output_string))
-        install_package_providing('mkfs.vfat')
-        self.assertEqual(
-                         ['apt-get -s install dosfstools',
-                          '%s apt-get --yes install dosfstools' %
-                          sudo_args],
-                         fixture.mock.commands_executed)
+
+        try:
+            install_package_providing('mkfs.vfat')
+        except UnableToFindPackageProvidingCommand as inst:
+            self.assertEqual("CommandNotFound python module does not exist.",
+                             inst.args[0])
+        else:
+            self.assertEqual(
+                ['apt-get -s install dosfstools',
+                '%s apt-get --yes install dosfstools' % sudo_args],
+                fixture.mock.commands_executed)
 
     def test_package_installation_refused(self):
         self.useFixture(MockSomethingFixture(sys,
@@ -285,7 +293,15 @@ class TestInstallPackageProviding(TestCaseWithFixtures):
                                              'stdin',
                                              StringIO('n')))
         self.useFixture(MockCmdRunnerPopenFixture(self.output_string))
-        self.assertRaises(SystemExit, install_package_providing, 'mkfs.vfat')
+
+        CommandNotFound = try_import('CommandNotFound.CommandNotFound')
+
+        if CommandNotFound is None:
+            self.assertRaises(UnableToFindPackageProvidingCommand,
+                              install_package_providing, 'mkfs.vfat')
+        else:
+            self.assertRaises(SystemExit, install_package_providing,
+                              'mkfs.vfat')
 
     def test_not_found_package(self):
         self.assertRaises(UnableToFindPackageProvidingCommand,
@@ -333,6 +349,49 @@ class TestAdditionalOptionChecks(TestCaseWithFixtures):
                                device="testdevice",
                                board="testboard"))
         sys.argv.remove("--mmc")
+
+
+class TestAndroidOptionChecks(TestCaseWithFixtures):
+
+    def test_hwpack_is_file(self):
+        class HwPacksArgs:
+            def __init__(self, hwpack):
+                self.hwpack = hwpack
+
+        try:
+            tmpdir = tempfile.mkdtemp()
+            self.assertRaises(InvalidHwpackFile,
+                              additional_android_option_checks,
+                              HwPacksArgs(tmpdir))
+        finally:
+            os.rmdir(tmpdir)
+
+    def test_android_hwpack_in_boot(self):
+        """Test presence of config file in boot directory."""
+        try:
+            tmpdir = tempfile.mkdtemp()
+            boot_dir = os.path.join(tmpdir, "boot")
+            os.mkdir(boot_dir)
+            config_file = os.path.join(boot_dir, "config")
+            expected = (True, config_file)
+            with open(config_file, "w"):
+                self.assertEqual(expected,
+                                 andorid_hwpack_in_boot_tarball(tmpdir))
+        finally:
+            os.unlink(config_file)
+            os.removedirs(boot_dir)
+
+    def test_android_hwpack_not_in_boot(self):
+        """Test missing config file."""
+        try:
+            tmpdir = tempfile.mkdtemp()
+            boot_dir = os.path.join(tmpdir, "boot")
+            os.mkdir(boot_dir)
+            config_file = os.path.join(boot_dir, "config")
+            expected = (False, config_file)
+            self.assertEqual(expected, andorid_hwpack_in_boot_tarball(tmpdir))
+        finally:
+            os.removedirs(boot_dir)
 
 
 class TestHwpackIsFile(TestCaseWithFixtures):
